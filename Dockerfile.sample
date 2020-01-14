@@ -1,0 +1,18 @@
+FROM python:3.7
+WORKDIR /code/gt-backend
+
+COPY requirements.txt ./
+RUN pip install -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
+
+COPY . .
+
+ENV FLASK_APP=manage:app
+ENV GT_BACKEND_ENV=prod
+
+ENV DATABASE_URL=
+ENV QINIU_ACCESS_KEY=
+ENV QINIU_SECRET_KEY=
+ENV QINIU_BUCKET_NAME=
+ENV QINIU_BUCKET_DOMAIN=
+
+CMD ["gunicorn", "manage:app", "-c", "./gunicorn.conf.py"]
