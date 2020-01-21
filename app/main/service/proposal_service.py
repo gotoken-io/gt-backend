@@ -2,6 +2,8 @@ import uuid
 from app.main import db
 from app.main.model import User, ProposalZone, Proposal, Currency
 from app.main.service.util import save_changes
+from app.main.config import Config
+from sqlalchemy import func
 
 # def detect_user_exist(func):
 #     def wrapper(data):
@@ -18,20 +20,37 @@ from app.main.service.util import save_changes
 def get_all_proposal_zone():
     return ProposalZone.query.filter_by(is_delete=0).all()
 
-def get_all_proposal():
-    return Proposal.query.filter_by(is_delete=0).all()
 
-def get_all_proposal_in_zone(zone_id):
-    return Proposal.query.filter_by(zone_id=zone_id, is_delete=0).all()
+def get_all_proposal(page=1):
+    proposals = Proposal.query.filter_by(is_delete=0).paginate(
+        page, Config.PROPOSAL_PER_PAGE, False)
+    return proposals
+
+
+def get_all_proposal_in_zone(zone_id, page=1):
+    proposals_in_zone = Proposal.query.filter_by(
+        zone_id=zone_id, is_delete=0).paginate(page, Config.PROPOSAL_PER_PAGE,
+                                               False)
+    return proposals_in_zone
+
+
+def get_all_proposals_count_in_zone(zone_id):
+    proposal_count = Proposal.query.filter_by(zone_id=zone_id,
+                                              is_delete=0).count()
+    return proposal_count
+
 
 def get_a_proposal_zone(id):
     return ProposalZone.query.filter_by(id=id).first()
 
+
 def get_a_proposal(id):
     return Proposal.query.filter_by(id=id).first()
 
+
 def get_all_currency():
     return Currency.query.all()
+
 
 # @detect_user_exist
 def save_new_proposal_zone(data):
@@ -58,10 +77,7 @@ def save_new_proposal_zone(data):
             }
             return response_object, 201
         except Exception as e:
-            response_object = {
-                'status': 'fail',
-                'message': str(e)
-            }
+            response_object = {'status': 'fail', 'message': str(e)}
             return response_object, 400
     else:
         response_object = {
@@ -69,6 +85,7 @@ def save_new_proposal_zone(data):
             'message': 'Proposal zone name already exists.',
         }
         return response_object, 409
+
 
 # update proposal zone
 def update_proposal_zone(id, data, user):
@@ -101,11 +118,9 @@ def update_proposal_zone(id, data, user):
             return response_object, 200
         except Exception as e:
             print(e)
-            response_object = {
-                'status': 'fail',
-                'message': str(e)
-            }
+            response_object = {'status': 'fail', 'message': str(e)}
             return response_object, 401
+
 
 def save_new_proposal(data):
 
@@ -120,7 +135,7 @@ def save_new_proposal(data):
     try:
 
         # 当前 zone 内的 proposal 数量
-        zone_proposal_count = len(get_all_proposal_in_zone(data['zone_id']))
+        zone_proposal_count = get_all_proposals_count_in_zone(data['zone_id'])
 
         # 新的 proposal zone id
         new_zone_proposal_id = zone_proposal_count + 1
@@ -131,7 +146,7 @@ def save_new_proposal(data):
             title=data['title'],
             amount=data['amount'],
             summary=data['summary'],
-            status=100, # 创建成功，新创建的提案都是这个状态
+            status=100,  # 创建成功，新创建的提案都是这个状态
             detail=data['detail'],
             creator_id=data['creator_id'],
             currency_id=data['currency_id'],
@@ -146,11 +161,9 @@ def save_new_proposal(data):
         return response_object, 201
     except Exception as e:
         print(e)
-        response_object = {
-            'status': 'fail',
-            'message': str(e)
-        }
+        response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
 
 # only creator, admin can udpate
 def update_proposal(id, data, user):
@@ -162,7 +175,7 @@ def update_proposal(id, data, user):
             'message': 'proposal is not exists.',
         }
         return response_object, 404
-    if(proposal.creator_id != user.id and user.admin != True):
+    if (proposal.creator_id != user.id and user.admin != True):
         response_object = {
             'status': 'fail',
             'message': 'permission deny',
@@ -186,11 +199,9 @@ def update_proposal(id, data, user):
         return response_object, 200
     except Exception as e:
         print(e)
-        response_object = {
-            'status': 'fail',
-            'message': str(e)
-        }
+        response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
 
 def delete_proposal(id, user):
     proposal = Proposal.query.filter_by(id=id).first()
@@ -200,7 +211,7 @@ def delete_proposal(id, user):
             'message': 'proposal is not exists.',
         }
         return response_object, 404
-    if(proposal.creator_id != user.id and user.admin != True):
+    if (proposal.creator_id != user.id and user.admin != True):
         response_object = {
             'status': 'fail',
             'message': 'permission deny',
@@ -217,11 +228,9 @@ def delete_proposal(id, user):
         }
         return response_object, 200
     except Exception as e:
-        response_object = {
-            'status': 'fail',
-            'message': str(e)
-        }
+        response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
 
 def delete_proposal_zone(id, user):
     proposal_zone = ProposalZone.query.filter_by(id=id).first()
@@ -231,7 +240,7 @@ def delete_proposal_zone(id, user):
             'message': 'proposal zone id is not exists.',
         }
         return response_object, 404
-    if(user.admin != True):
+    if (user.admin != True):
         response_object = {
             'status': 'fail',
             'message': 'permission deny',
@@ -241,7 +250,8 @@ def delete_proposal_zone(id, user):
     try:
         proposal_zone.is_delete = 1
         # 该专区下所有 proposal 都被删除
-        db.session.query(Proposal).filter(Proposal.zone_id==id).update({Proposal.is_delete:1})
+        db.session.query(Proposal).filter(Proposal.zone_id == id).update(
+            {Proposal.is_delete: 1})
 
         db.session.commit()
 
@@ -251,8 +261,5 @@ def delete_proposal_zone(id, user):
         }
         return response_object, 200
     except Exception as e:
-        response_object = {
-            'status': 'fail',
-            'message': str(e)
-        }
+        response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401

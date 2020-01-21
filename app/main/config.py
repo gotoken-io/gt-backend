@@ -1,11 +1,13 @@
 import os
 from dotenv import load_dotenv
 
-basedir = os.path.abspath(os.path.dirname(__file__)) # app/main
+basedir = os.path.abspath(os.path.dirname(__file__))  # app/main
 
-APP_ROOT = os.path.join(os.path.dirname(__file__), '../..')   # refers to application_top
+APP_ROOT = os.path.join(os.path.dirname(__file__),
+                        '../..')  # refers to application_top
 dotenv_path = os.path.join(APP_ROOT, '.env')
 load_dotenv(dotenv_path)
+
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY', 'gotkengogogo')
@@ -25,7 +27,7 @@ class Config:
 
     # GT config
     GT_DOMAIN = os.getenv('GT_DOMAIN', 'https://gotoken.io')
-
+    PROPOSAL_PER_PAGE = 2  # proposal per page show amount
 
 
 class DevelopmentConfig(Config):
@@ -54,10 +56,8 @@ class ProductionConfig(Config):
     HOST = 'https://gotoken.io'
 
 
-config_by_name = dict(
-    dev=DevelopmentConfig,
-    test=TestingConfig,
-    prod=ProductionConfig
-)
+config_by_name = dict(dev=DevelopmentConfig,
+                      test=TestingConfig,
+                      prod=ProductionConfig)
 
 key = Config.SECRET_KEY

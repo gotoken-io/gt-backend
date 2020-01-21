@@ -15,20 +15,21 @@ from app.main.util.dto import comment_dto
 save_new_proposal_zone = proposal_service.save_new_proposal_zone
 get_all_proposal_zone = proposal_service.get_all_proposal_zone
 save_new_proposal = proposal_service.save_new_proposal
-get_all_proposal= proposal_service.get_all_proposal
-get_all_proposal_in_zone=proposal_service.get_all_proposal_in_zone
+get_all_proposal = proposal_service.get_all_proposal
+get_all_proposal_in_zone = proposal_service.get_all_proposal_in_zone
 
 get_a_proposal = proposal_service.get_a_proposal
 get_a_proposal_zone = proposal_service.get_a_proposal_zone
 get_all_currency = proposal_service.get_all_currency
 update_proposal = proposal_service.update_proposal
 update_proposal_zone = proposal_service.update_proposal_zone
-delete_proposal=proposal_service.delete_proposal
-delete_proposal_zone=proposal_service.delete_proposal_zone
+delete_proposal = proposal_service.delete_proposal
+delete_proposal_zone = proposal_service.delete_proposal_zone
 
 # proposal zone dto
 api_proposal_zone = proposal_zone_dto.api
 proposal_zone = proposal_zone_dto.proposal_zone
+
 
 # proposal zone api
 @api_proposal_zone.route('/')
@@ -45,15 +46,16 @@ class ProposalZoneAPI(Resource):
         # get auth token
         auth_token = request.headers.get('Authorization')
         user = get_a_user_by_auth_token(auth_token)
-        
+
         if user:
-            post_data['creator_id']=user.id
+            post_data['creator_id'] = user.id
             return save_new_proposal_zone(data=post_data)
 
     @api_proposal_zone.doc('get all proposal zones')
     @api_proposal_zone.marshal_list_with(proposal_zone, envelope='data')
     def get(self):
         return get_all_proposal_zone()
+
 
 @api_proposal_zone.route('/<id>')
 @api_proposal_zone.param('id', 'Proposal  zone id')
@@ -72,7 +74,7 @@ class ProposalZoneSingleAPI(Resource):
             api_proposal_zone.abort(404)
         else:
             return proposal_zone
-    
+
     @api_proposal_zone.doc('update proposal zone')
     @api_proposal_zone.expect(proposal_zone)
     @admin_token_required
@@ -99,8 +101,10 @@ class ProposalZoneSingleAPI(Resource):
 # proposal dto
 api_proposal = proposal_dto.api
 proposal = proposal_dto.proposal
+page_of_proposals = proposal_dto.page_of_proposals
 proposal_post = proposal_dto.proposal_post
 proposal_put = proposal_dto.proposal_put
+
 
 # proposal api
 @api_proposal.route('/')
@@ -119,21 +123,21 @@ class ProposalAPI(Resource):
         user = get_a_user_by_auth_token(auth_token)
 
         print(user)
-        
+
         if user:
-            post_data['creator_id']=user.id
+            post_data['creator_id'] = user.id
             return save_new_proposal(data=post_data)
 
-
-
     @api_proposal.doc('get all proposal')
-    @api_proposal.marshal_list_with(proposal, envelope='data')
+    @api_proposal.marshal_with(page_of_proposals, envelope='data')
     def get(self):
         zone_id = request.args.get("zone_id")
-        if(zone_id):
-            return get_all_proposal_in_zone(zone_id)
+        page = int(request.args.get("page", 1))
+        if (zone_id):
+            return get_all_proposal_in_zone(zone_id, page)
         else:
-            return get_all_proposal()  
+            return get_all_proposal(page)
+
 
 @api_proposal.route('/<id>')
 @api_proposal.param('id', 'Proposal id')
@@ -172,10 +176,12 @@ class ProposalSingleAPI(Resource):
         if user:
             return delete_proposal(id=id, user=user)
 
+
 # proposal comment api
 
 api_comment = comment_dto.api
 comment_get_list = comment_dto.comment_get_list
+
 
 @api_proposal.route('/comment/<id>')
 @api_proposal.param('id', 'Proposal id')
@@ -201,6 +207,7 @@ class CommentAPI(Resource):
 api_currency = currency_dto.api
 currency = currency_dto.currency
 
+
 # proposal api
 @api_currency.route('/')
 class CurrencyAPI(Resource):
@@ -210,4 +217,4 @@ class CurrencyAPI(Resource):
     @api_currency.doc('get all currency')
     @api_currency.marshal_list_with(currency, envelope='data')
     def get(self):
-        return get_all_currency()  
+        return get_all_currency()
