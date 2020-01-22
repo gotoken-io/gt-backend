@@ -6,6 +6,19 @@ from app.main.util.dto.comment_dto import comment_get_list
 
 api = Namespace('proposal', description='proposal related operations')
 
+pagination = api.model(
+    'A page of results', {
+        'page':
+        fields.Integer(description='Number of this page of results'),
+        'pages':
+        fields.Integer(description='Total number of pages of results'),
+        'per_page':
+        fields.Integer(description='Number of items per page of results'),
+        'total':
+        fields.Integer(description='Total number of results'),
+    })
+
+
 # 用户创建的 proposal
 proposal_created_item = api.model(
     'proposal', {
@@ -38,17 +51,6 @@ user_get = api.model(
 
 creator_fields = fields.Nested(user_get)
 
-pagination = api.model(
-    'A page of results', {
-        'page':
-        fields.Integer(description='Number of this page of results'),
-        'pages':
-        fields.Integer(description='Total number of pages of results'),
-        'per_page':
-        fields.Integer(description='Number of items per page of results'),
-        'total':
-        fields.Integer(description='Total number of results'),
-    })
 
 proposal = api.model(
     'proposal',
@@ -67,7 +69,7 @@ proposal = api.model(
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'creator': creator_fields,
         'currency_unit': fields.Nested(currency_dto.currency),
-        # 'comments': fields.List(fields.Nested(comment_get_list)),
+        'comments_count': fields.Integer(description='proposal comments count'),
     })
 
 page_of_proposals = api.inherit(

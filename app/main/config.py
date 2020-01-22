@@ -27,7 +27,7 @@ class Config:
 
     # GT config
     GT_DOMAIN = os.getenv('GT_DOMAIN', 'https://gotoken.io')
-    PROPOSAL_PER_PAGE = 2  # proposal per page show amount
+    PROPOSAL_PER_PAGE = 15  # proposal per page show amount
 
 
 class DevelopmentConfig(Config):

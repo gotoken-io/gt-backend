@@ -10,6 +10,7 @@ from app.main.service.util.uuid import version_uuid
 from app.main.util.token import generate_email_token, validate_token
 from app.main.settings import Operations
 from app.main.util.mail import send_reset_pwd_mail
+from app.main.config import Config
 
 
 def save_new_user(data):
@@ -78,22 +79,21 @@ def get_all_users():
 
 def get_a_user(id):
     user = User.query.filter(User.id == id).first()
-    created = Proposal.query.filter_by(creator_id=id, is_delete=0).all()
-    user.proposals_created = created
+    # user created proposals
+    # created_proposals = Proposal.query.filter_by(creator_id=id, is_delete=0).paginate(
+    #     page, Config.PROPOSAL_PER_PAGE, False)
+
+    # user.proposals_created = created_proposals
     return user
 
 
-# 还未使用
-def get_a_user_proposal(id):
-    created = Proposal.query.filter_by(creator_id=id, is_delete=0).all()
+# get a user created proposals
+def get_a_user_created_proposal(id, page):
+    created_proposals = Proposal.query.filter_by(
+        creator_id=id, is_delete=0).paginate(page, Config.PROPOSAL_PER_PAGE,
+                                             False)
 
-    response_object = {
-        'status': 'success',
-        'data': {
-            'created': created,
-        }
-    }
-    return response_object, 200
+    return created_proposals
 
 
 def get_a_user_by_auth_token(auth_token):
