@@ -72,4 +72,4 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     # 加上 @property 注解,表示这是一个属性字段
     @property
     def comments_count(self):
-        return self.comments.count()
+        return Comment.query.with_parent(self).filter_by(is_delete=0).count()
