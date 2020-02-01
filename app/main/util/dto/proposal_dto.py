@@ -21,7 +21,7 @@ pagination = api.model(
 
 proposal_category = api.model(
     'category',{
-        'id': fields.String(description='proposal category id'),
+        'id': fields.Integer(description='proposal category id'),
         'name': fields.String(required=True, description='proposal category name'),
         'name_en': fields.String(description='proposal category name(en)'),
         'order': fields.Integer(description='proposal category order index', default=0),

@@ -200,7 +200,8 @@ class ProposalCategoryAPI(Resource):
         name_en = post_data.get('name_en', name)
         order = post_data.get('order', 0)
 
-        return proposal_service.save_new_category(name, name_en, creator_id)
+        return proposal_service.save_new_category(name, name_en, order,
+                                                  creator_id)
 
     @api_proposal.doc('update a proposal category')
     @admin_token_required

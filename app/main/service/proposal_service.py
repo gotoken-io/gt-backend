@@ -295,23 +295,23 @@ def get_all_category():
         Category.order.desc()).all()
 
 
-def validate_category_name(_name, _name_en, _id):
+def validate_category_name(_name, _name_en, _id=None):
     if not _id:
         if Category.query.filter_by(name=_name).first():
-            raise Exception("category name is exist.")
+            raise Exception("name is exist.")
 
         if _name_en:
             if Category.query.filter_by(name_en=_name_en).first():
-                raise Exception("category name_en is exist.")
+                raise Exception("name_en is exist.")
     else:
         if Category.query.filter(Category.id != _id,
                                  Category.name == _name).first():
-            raise Exception("category name is exist.")
+            raise Exception("name is exist.")
 
         if _name_en:
             if Category.query.filter(Category.id != _id,
                                      Category.name_en == _name_en).first():
-                raise Exception("category name_en is exist.")
+                raise Exception("name_en is exist.")
 
 
 # save a new category
@@ -320,7 +320,7 @@ def save_new_category(_name, _name_en, _order, _creator_id):
     if not _name:
         response_object = {
             'status': 'fail',
-            'message': 'category name is required.',
+            'message': 'name is required.',
         }
         return response_object, 404
 
@@ -340,6 +340,11 @@ def save_new_category(_name, _name_en, _order, _creator_id):
         response_object = {
             'status': 'success',
             'message': 'Successfully add a new proposal category.',
+            'data': {
+                'id': category.id,
+                'name': category.name,
+                'name_en': category.name_en,
+            }
         }
         return response_object, 200
 
