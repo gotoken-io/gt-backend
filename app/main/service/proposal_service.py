@@ -1,6 +1,6 @@
 import uuid
 from app.main import db
-from app.main.model import User, ProposalZone, Proposal, Currency
+from app.main.model import User, ProposalZone, Proposal, Currency, Category
 from app.main.service.util import save_changes
 from app.main.config import Config
 from sqlalchemy import func
@@ -124,11 +124,21 @@ def update_proposal_zone(id, data, user):
 
 def save_new_proposal(data):
 
+    # check 'zone_id' is exist or not
     proposal_zone = ProposalZone.query.filter_by(id=data['zone_id']).first()
     if not proposal_zone:
         response_object = {
             'status': 'fail',
             'message': 'relate zone_id is not exists.',
+        }
+        return response_object, 404
+
+    # check 'category_id' is exist or not
+    category = Category.query.filter_by(id=data['category_id']).first()
+    if not category:
+        response_object = {
+            'status': 'fail',
+            'message': 'relate category_id is not exists.',
         }
         return response_object, 404
 
@@ -144,6 +154,7 @@ def save_new_proposal(data):
             zone_id=data['zone_id'],
             zone_proposal_id=new_zone_proposal_id,
             title=data['title'],
+            categroy_id=data['category_id'],
             amount=data['amount'],
             summary=data['summary'],
             status=100,  # 创建成功，新创建的提案都是这个状态
@@ -165,9 +176,18 @@ def save_new_proposal(data):
         return response_object, 401
 
 
-# only creator, admin can udpate
+# update proposal info
 def update_proposal(id, data, user):
 
+    # only creator, admin can udpate
+    if (proposal.creator_id != user.id and user.admin != True):
+        response_object = {
+            'status': 'fail',
+            'message': 'permission deny',
+        }
+        return response_object, 403
+
+    # check update proposal.id is exist or not
     proposal = Proposal.query.filter_by(id=id).first()
     if not proposal:
         response_object = {
@@ -175,12 +195,15 @@ def update_proposal(id, data, user):
             'message': 'proposal is not exists.',
         }
         return response_object, 404
-    if (proposal.creator_id != user.id and user.admin != True):
+
+    # check 'category_id' is exist or not
+    category = Category.query.filter_by(id=data['category_id']).first()
+    if not category:
         response_object = {
             'status': 'fail',
-            'message': 'permission deny',
+            'message': 'relate category_id is not exists.',
         }
-        return response_object, 403
+        return response_object, 404
 
     try:
         proposal.title = data['title']
@@ -189,6 +212,7 @@ def update_proposal(id, data, user):
         proposal.detail = data['detail']
         proposal.currency_id = data['currency_id']
         proposal.tag = data['tag']
+        proposal.category_id = data['category_id']
 
         db.session.commit()
 
@@ -260,6 +284,94 @@ def delete_proposal_zone(id, user):
             'message': 'Successfully delete proposal zone and it`s proposal.',
         }
         return response_object, 200
+    except Exception as e:
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 401
+
+
+# get all category
+def get_all_category():
+    return Category.query.filter_by(is_delete=0).all()
+
+
+def validate_category_name(_name, _name_en, _id):
+    if not _id:
+        if Category.query.filter_by(name=_name).first():
+            raise Exception("category name is exist.")
+
+        if _name_en:
+            if Category.query.filter_by(name_en=_name_en).first():
+                raise Exception("category name_en is exist.")
+    else:
+        if Category.query.filter(Category.id != _id,
+                                 Category.name == _name).first():
+            raise Exception("category name is exist.")
+
+        if _name_en:
+            if Category.query.filter(Category.id != _id,
+                                     Category.name_en == _name_en).first():
+                raise Exception("category name_en is exist.")
+
+
+# save a new category
+def save_new_category(_name, _name_en, _order, _creator_id):
+
+    if not _name:
+        response_object = {
+            'status': 'fail',
+            'message': 'category name is required.',
+        }
+        return response_object, 404
+
+    try:
+
+        validate_category_name(_name, _name_en)
+
+        category = Category(
+            name=_name,
+            name_en=_name_en,
+            order=_order,
+            creator_id=_creator_id,
+        )
+
+        save_changes(category)
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully add a new proposal category.',
+        }
+        return response_object, 200
+
+    except Exception as e:
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 401
+
+
+def update_category(_id, _name, _name_en, _order):
+    # check 'category_id' is exist or not
+    category = Category.query.filter_by(id=_id).first()
+    if not category:
+        response_object = {
+            'status': 'fail',
+            'message': 'relate category.id is not exists.',
+        }
+        return response_object, 404
+
+    try:
+        validate_category_name(_name, _name_en, _id)
+
+        category.name = _name
+        category.name_en = _name_en
+        category.order = _order
+
+        db.session.commit()
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully update proposal category.',
+        }
+        return response_object, 200
+
     except Exception as e:
         response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401

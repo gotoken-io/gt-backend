@@ -177,8 +177,45 @@ class ProposalSingleAPI(Resource):
             return delete_proposal(id=id, user=user)
 
 
-# proposal comment api
+@api_proposal.route('/category')
+class ProposalCategoryAPI(Resource):
+    @api_proposal.doc('get all proposal categories')
+    @api_proposal.marshal_list_with(proposal_dto.proposal_category,
+                                    envelope='data')
+    def get(self):
+        all_categories = proposal_service.get_all_category()
+        return all_categories
 
+    @api_proposal.doc('add a new proposal category')
+    @admin_token_required
+    def post(self):
+        post_data = request.json
+
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+        if user:
+            creator_id = user.id
+
+        name = post_data.get('name')
+        name_en = post_data.get('name_en', name)
+        order = post_data.get('order', 0)
+
+        return proposal_service.save_new_category(name, name_en, creator_id)
+
+    @api_proposal.doc('update a proposal category')
+    @admin_token_required
+    def put(self):
+        post_data = request.json
+
+        id = post_data.get('id')
+        name = post_data.get('name')
+        name_en = post_data.get('name_en')
+        order = post_data.get('order', 0)
+
+        return proposal_service.update_category(id, name, name_en, order)
+
+
+# proposal comment api
 api_comment = comment_dto.api
 comment_get_list = comment_dto.comment_get_list
 

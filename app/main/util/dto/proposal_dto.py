@@ -19,6 +19,15 @@ pagination = api.model(
     })
 
 
+proposal_category = api.model(
+    'category',{
+        'id': fields.String(description='proposal category id'),
+        'name': fields.String(required=True, description='proposal category name'),
+        'name_en': fields.String(description='proposal category name(en)'),
+        'order': fields.Integer(description='proposal category order index', default=0),
+    }
+)
+
 # 用户创建的 proposal
 proposal_created_item = api.model(
     'proposal', {
@@ -32,6 +41,7 @@ proposal_created_item = api.model(
         'created': fields.DateTime(description='created timestamp'),
         'updated': fields.DateTime(description='updated timestamp'),
         'tag': fields.String(description='tag'),
+        'category': fields.Nested(proposal_category),
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'currency_unit': fields.Nested(currency_dto.currency),
     })
@@ -66,6 +76,7 @@ proposal = api.model(
         'created': fields.DateTime(description='created timestamp'),
         'updated': fields.DateTime(description='updated timestamp'),
         'tag': fields.String(description='tag'),
+        'category': fields.Nested(proposal_category),
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'creator': creator_fields,
         'currency_unit': fields.Nested(currency_dto.currency),
