@@ -17,6 +17,12 @@ class Category(BaseModelMixin, TimestampMixin, db.Model):
     order = db.Column(db.Integer, default=0)  # use for order category list
     proposals = db.relationship('Proposal', backref='category')
 
+    @property
+    def proposals_count(self):
+        # return len(self.proposals)
+        return Proposal.query.filter_by(category_id=self.id,
+                                        is_delete=0).count()
+
 
 class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
     """

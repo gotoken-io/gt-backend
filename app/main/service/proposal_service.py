@@ -291,7 +291,8 @@ def delete_proposal_zone(id, user):
 
 # get all category
 def get_all_category():
-    return Category.query.filter_by(is_delete=0).all()
+    return Category.query.filter_by(is_delete=0).order_by(
+        Category.order.desc()).all()
 
 
 def validate_category_name(_name, _name_en, _id):
@@ -375,3 +376,43 @@ def update_category(_id, _name, _name_en, _order):
     except Exception as e:
         response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
+
+def delete_category(_id):
+    # check 'category_id' is exist or not
+    category = Category.query.filter_by(id=_id).first()
+    if not category:
+        response_object = {
+            'status': 'fail',
+            'message': 'relate category.id is not exists.',
+        }
+        return response_object, 404
+
+    # this category has related proposals
+    if len(category.proposals) > 0:
+
+        class r_proposal:
+            def __init__(self, id, title):
+                self.id = id
+                self.title = title
+
+        related_proposals = []
+
+        for p in category.proposals:
+            related_proposals.append((p.id, p.title))
+
+        response_object = {
+            'status': 'fail',
+            'message': 'this category.id exist relate proposal',
+            'data': related_proposals
+        }
+        return response_object, 400
+
+    # can delete this category
+    category.is_delete = 1
+    db.session.commit()
+    response_object = {
+        'status': 'success',
+        'message': 'Successfully delete proposal category.',
+    }
+    return response_object, 200

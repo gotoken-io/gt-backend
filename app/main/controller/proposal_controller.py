@@ -214,6 +214,15 @@ class ProposalCategoryAPI(Resource):
 
         return proposal_service.update_category(id, name, name_en, order)
 
+    @api_proposal.doc('delete a proposal category')
+    @admin_token_required
+    def delete(self):
+        post_data = request.json
+
+        id = post_data.get('id')
+
+        return proposal_service.delete_category(id)
+
 
 # proposal comment api
 api_comment = comment_dto.api

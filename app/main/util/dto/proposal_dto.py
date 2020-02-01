@@ -25,6 +25,7 @@ proposal_category = api.model(
         'name': fields.String(required=True, description='proposal category name'),
         'name_en': fields.String(description='proposal category name(en)'),
         'order': fields.Integer(description='proposal category order index', default=0),
+        'proposals_count': fields.Integer(description='related proposal count'),
     }
 )
 
