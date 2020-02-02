@@ -21,18 +21,45 @@ def get_all_proposal_zone():
     return ProposalZone.query.filter_by(is_delete=0).all()
 
 
-def get_all_proposal(page=1):
-    proposals = Proposal.query.filter_by(is_delete=0).order_by(
+def get_all_proposal(page=1, category_id=None):
+    # default filter
+    get_proposals_filter = Proposal.query.filter_by(is_delete=0)
+
+    if category_id:
+        # check 'category_id' is exist or not
+        category = Category.query.filter_by(id=category_id).first()
+        if category:
+            get_proposals_filter = Proposal.query.filter_by(
+                category_id=category_id, is_delete=0)
+
+    proposals = get_proposals_filter.order_by(
         Proposal.created.desc()).paginate(page, Config.PROPOSAL_PER_PAGE,
                                           False)
     return proposals
 
 
-def get_all_proposal_in_zone(zone_id, page=1):
-    proposals_in_zone = Proposal.query.filter_by(
-        zone_id=zone_id,
-        is_delete=0).order_by(Proposal.created.desc()).paginate(
-            page, Config.PROPOSAL_PER_PAGE, False)
+def get_all_proposal_in_zone(zone_id, page=1, category_id=None):
+
+    # default filter(get all proposals)
+    get_proposals_filter = Proposal.query.filter_by(is_delete=0)
+
+    zone = ProposalZone.query.filter_by(id=zone_id).first()
+    if zone:
+        # default filter(get all proposals in zone id)
+        get_proposals_filter = Proposal.query.filter_by(zone_id=zone_id,
+                                                        is_delete=0)
+
+    if category_id:
+        # check 'category_id' is exist or not
+        category = Category.query.filter_by(id=category_id).first()
+        if category:
+            get_proposals_filter = Proposal.query.filter_by(
+                zone_id=zone_id, category_id=category_id, is_delete=0)
+
+    proposals_in_zone = get_proposals_filter.order_by(
+        Proposal.created.desc()).paginate(page, Config.PROPOSAL_PER_PAGE,
+                                          False)
+
     return proposals_in_zone
 
 

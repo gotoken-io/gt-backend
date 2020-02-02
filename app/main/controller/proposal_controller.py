@@ -132,11 +132,12 @@ class ProposalAPI(Resource):
     @api_proposal.marshal_with(page_of_proposals, envelope='data')
     def get(self):
         zone_id = request.args.get("zone_id")
+        category_id = request.args.get("category_id")
         page = int(request.args.get("page", 1))
         if (zone_id):
-            return get_all_proposal_in_zone(zone_id, page)
+            return get_all_proposal_in_zone(zone_id, page, category_id)
         else:
-            return get_all_proposal(page)
+            return get_all_proposal(page, category_id)
 
 
 @api_proposal.route('/<id>')
