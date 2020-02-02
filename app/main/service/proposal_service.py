@@ -22,15 +22,17 @@ def get_all_proposal_zone():
 
 
 def get_all_proposal(page=1):
-    proposals = Proposal.query.filter_by(is_delete=0).paginate(
-        page, Config.PROPOSAL_PER_PAGE, False)
+    proposals = Proposal.query.filter_by(is_delete=0).order_by(
+        Proposal.created.desc()).paginate(page, Config.PROPOSAL_PER_PAGE,
+                                          False)
     return proposals
 
 
 def get_all_proposal_in_zone(zone_id, page=1):
     proposals_in_zone = Proposal.query.filter_by(
-        zone_id=zone_id, is_delete=0).paginate(page, Config.PROPOSAL_PER_PAGE,
-                                               False)
+        zone_id=zone_id,
+        is_delete=0).order_by(Proposal.created.desc()).paginate(
+            page, Config.PROPOSAL_PER_PAGE, False)
     return proposals_in_zone
 
 
@@ -154,7 +156,7 @@ def save_new_proposal(data):
             zone_id=data['zone_id'],
             zone_proposal_id=new_zone_proposal_id,
             title=data['title'],
-            categroy_id=data['category_id'],
+            category_id=data['category_id'],
             amount=data['amount'],
             summary=data['summary'],
             status=100,  # 创建成功，新创建的提案都是这个状态
@@ -173,11 +175,13 @@ def save_new_proposal(data):
     except Exception as e:
         print(e)
         response_object = {'status': 'fail', 'message': str(e)}
-        return response_object, 401
+        return response_object, 400
 
 
 # update proposal info
 def update_proposal(id, data, user):
+    # check update proposal.id is exist or not
+    proposal = Proposal.query.filter_by(id=id).first()
 
     # only creator, admin can udpate
     if (proposal.creator_id != user.id and user.admin != True):
@@ -187,8 +191,6 @@ def update_proposal(id, data, user):
         }
         return response_object, 403
 
-    # check update proposal.id is exist or not
-    proposal = Proposal.query.filter_by(id=id).first()
     if not proposal:
         response_object = {
             'status': 'fail',
@@ -197,13 +199,15 @@ def update_proposal(id, data, user):
         return response_object, 404
 
     # check 'category_id' is exist or not
-    category = Category.query.filter_by(id=data['category_id']).first()
-    if not category:
-        response_object = {
-            'status': 'fail',
-            'message': 'relate category_id is not exists.',
-        }
-        return response_object, 404
+    category_id = data.get('category_id')
+    if category_id:
+        category = Category.query.filter_by(id=data['category_id']).first()
+        if not category:
+            response_object = {
+                'status': 'fail',
+                'message': 'relate category_id is not exists.',
+            }
+            return response_object, 404
 
     try:
         proposal.title = data['title']
@@ -212,7 +216,7 @@ def update_proposal(id, data, user):
         proposal.detail = data['detail']
         proposal.currency_id = data['currency_id']
         proposal.tag = data['tag']
-        proposal.category_id = data['category_id']
+        proposal.category_id = category_id
 
         db.session.commit()
 

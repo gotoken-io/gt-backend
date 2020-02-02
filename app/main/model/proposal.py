@@ -61,7 +61,9 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     zone_proposal_id = db.Column(
         db.Integer)  # 该 proposal 在某专区内的 ID, 以在该专区内的 ID 为自增
     title = db.Column(db.String(200))
-    category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    category_id = db.Column(db.Integer,
+                            db.ForeignKey('category.id'),
+                            nullable=True)
     tag = db.Column(db.String(200))
     amount = db.Column(db.DECIMAL)
     currency_id = db.Column(db.Integer,
