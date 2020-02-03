@@ -8,8 +8,6 @@ COPY . .
 
 ENV FLASK_APP=manage:app
 
-RUN python manage.py db upgrade
-
 EXPOSE 5000
 
 CMD ["gunicorn", "manage:app", "-c", "./gunicorn.conf.py"]
