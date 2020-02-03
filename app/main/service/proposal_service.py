@@ -3,7 +3,7 @@ from app.main import db
 from app.main.model import User, ProposalZone, Proposal, Currency, Category
 from app.main.service.util import save_changes
 from app.main.config import Config
-from sqlalchemy import func
+from sqlalchemy import desc, asc
 
 # def detect_user_exist(func):
 #     def wrapper(data):
@@ -21,46 +21,60 @@ def get_all_proposal_zone():
     return ProposalZone.query.filter_by(is_delete=0).all()
 
 
-def get_all_proposal(page=1, category_id=None):
+def get_all_proposal(page=1,
+                     zone_id=None,
+                     category_id=None,
+                     sort_name="createtime",
+                     sort_by="desc"):
+
     # default filter
     get_proposals_filter = Proposal.query.filter_by(is_delete=0)
 
+    zone = None
+    category = None
+
+    if zone_id:
+        zone = ProposalZone.query.filter_by(id=zone_id).first()
     if category_id:
         # check 'category_id' is exist or not
         category = Category.query.filter_by(id=category_id).first()
-        if category:
-            get_proposals_filter = Proposal.query.filter_by(
-                category_id=category_id, is_delete=0)
 
-    proposals = get_proposals_filter.order_by(
-        Proposal.created.desc()).paginate(page, Config.PROPOSAL_PER_PAGE,
-                                          False)
-    return proposals
-
-
-def get_all_proposal_in_zone(zone_id, page=1, category_id=None):
-
-    # default filter(get all proposals)
-    get_proposals_filter = Proposal.query.filter_by(is_delete=0)
-
-    zone = ProposalZone.query.filter_by(id=zone_id).first()
     if zone:
         # default filter(get all proposals in zone id)
         get_proposals_filter = Proposal.query.filter_by(zone_id=zone_id,
                                                         is_delete=0)
-
-    if category_id:
-        # check 'category_id' is exist or not
-        category = Category.query.filter_by(id=category_id).first()
         if category:
             get_proposals_filter = Proposal.query.filter_by(
                 zone_id=zone_id, category_id=category_id, is_delete=0)
+    else:
+        if category:
+            get_proposals_filter = Proposal.query.filter_by(
+                category_id=category_id, is_delete=0)
 
-    proposals_in_zone = get_proposals_filter.order_by(
-        Proposal.created.desc()).paginate(page, Config.PROPOSAL_PER_PAGE,
-                                          False)
+    # default order filter
+    order_filter = Proposal.created.desc()
 
-    return proposals_in_zone
+    if sort_name == "createtime":
+        if sort_by == "desc":
+            order_filter = Proposal.created.desc()
+        if sort_by == "asc":
+            order_filter = Proposal.created.asc()
+
+    if sort_name == "amount":
+        if sort_by == "desc":
+            order_filter = Proposal.amount.desc()
+        if sort_by == "asc":
+            order_filter = Proposal.amount.asc()
+
+    if sort_name == "comments":
+        if sort_by == "desc":
+            order_filter = desc(Proposal.comments_count)
+        if sort_by == "asc":
+            order_filter = asc(Proposal.comments_count)
+
+    proposals = get_proposals_filter.order_by(order_filter).paginate(
+        page, Config.PROPOSAL_PER_PAGE, False)
+    return proposals
 
 
 def get_all_proposals_count_in_zone(zone_id):

@@ -16,7 +16,6 @@ save_new_proposal_zone = proposal_service.save_new_proposal_zone
 get_all_proposal_zone = proposal_service.get_all_proposal_zone
 save_new_proposal = proposal_service.save_new_proposal
 get_all_proposal = proposal_service.get_all_proposal
-get_all_proposal_in_zone = proposal_service.get_all_proposal_in_zone
 
 get_a_proposal = proposal_service.get_a_proposal
 get_a_proposal_zone = proposal_service.get_a_proposal_zone
@@ -134,10 +133,14 @@ class ProposalAPI(Resource):
         zone_id = request.args.get("zone_id")
         category_id = request.args.get("category_id")
         page = int(request.args.get("page", 1))
-        if (zone_id):
-            return get_all_proposal_in_zone(zone_id, page, category_id)
-        else:
-            return get_all_proposal(page, category_id)
+        sort_name = request.args.get("sort_name", "createtime")
+        sort_by = request.args.get("sort_by", "desc")
+
+        return get_all_proposal(zone_id=zone_id,
+                                page=page,
+                                category_id=category_id,
+                                sort_name=sort_name,
+                                sort_by=sort_by)
 
 
 @api_proposal.route('/<id>')

@@ -3,6 +3,8 @@ from app.main.model.mixin import BaseModelMixin, TimestampMixin
 from app.main.model.user import User
 from app.main.model.currency import Currency
 from app.main.model.comment import Comment
+from sqlalchemy.ext.hybrid import hybrid_property
+from sqlalchemy import select, func, and_
 
 
 class Category(BaseModelMixin, TimestampMixin, db.Model):
@@ -92,6 +94,15 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
         return Currency.query.filter(currency_unit=self).first()
 
     # 加上 @property 注解,表示这是一个属性字段
-    @property
+    # @property
+    # def comments_count(self):
+    #     return Comment.query.with_parent(self).filter_by(is_delete=0).count()
+
+    @hybrid_property
     def comments_count(self):
-        return Comment.query.with_parent(self).filter_by(is_delete=0).count()
+        return self.comments.filter_by(is_delete=0).count()
+
+    @comments_count.expression
+    def comments_count(cls):
+        return (select([func.count(Comment.id)]).where(
+            and_(Comment.proposal_id == cls.id, Comment.is_delete == 0)))
