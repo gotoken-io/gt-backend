@@ -107,11 +107,15 @@ def save_new_proposal_zone(data):
                 title=data['title'],
                 summary=data['summary'],
                 detail=data['detail'],
-                theme_style=data['theme_style'],
-                cover=data['cover'],
+                theme_style=data.get('theme_style', None),
+                cover=data.get('cover', None),
                 vote_rule=data['vote_rule'],
                 vote_addr_weight_json=data['vote_addr_weight_json'],
                 creator_id=data['creator_id'],
+                vote_duration_hours_min=data.get('vote_duration_hours_min',
+                                                 24),
+                vote_duration_hours_max=data.get('vote_duration_hours_max',
+                                                 120),
             )
             save_changes(new_proposal_zone)
             response_object = {
@@ -126,8 +130,9 @@ def save_new_proposal_zone(data):
         response_object = {
             'status': 'fail',
             'message': 'Proposal zone name already exists.',
+            'code': 409
         }
-        return response_object, 409
+        return response_object, 200
 
 
 # update proposal zone
@@ -150,6 +155,12 @@ def update_proposal_zone(id, data, user):
             proposal_zone.theme_style = data['theme_style']
             proposal_zone.vote_rule = data['vote_rule']
             proposal_zone.vote_addr_weight_json = data['vote_addr_weight_json']
+
+            # vote duration
+            proposal_zone.vote_duration_hours_min = data.get(
+                'vote_duration_hours_min', 24)
+            proposal_zone.vote_duration_hours_max = data.get(
+                'vote_duration_hours_max', 120)
 
             # write to db
             db.session.commit()
@@ -205,6 +216,8 @@ def save_new_proposal(data):
             creator_id=data['creator_id'],
             currency_id=data['currency_id'],
             tag=data['tag'],
+            estimated_hours=data.get('estimated_hours', 0),
+            vote_duration_hours=data.get('vote_duration_hours', 120),
         )
 
         save_changes(new_proposal)
@@ -258,6 +271,9 @@ def update_proposal(id, data, user):
         proposal.currency_id = data['currency_id']
         proposal.tag = data['tag']
         proposal.category_id = category_id
+
+        proposal.estimated_hours = data.get('estimated_hours', 0)
+        proposal.vote_duration_hours = data.get('vote_duration_hours', 24)
 
         db.session.commit()
 

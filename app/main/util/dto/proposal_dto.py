@@ -45,6 +45,8 @@ proposal_created_item = api.model(
         'category': fields.Nested(proposal_category),
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'currency_unit': fields.Nested(currency_dto.currency),
+        'estimated_hours': fields.Integer(description='estimated work hours'),
+        'vote_duration_hours': fields.Integer(description='vote duration hours'),
     })
 
 proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
@@ -80,6 +82,8 @@ proposal = api.model(
         'category': fields.Nested(proposal_category),
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'creator': creator_fields,
+        'estimated_hours': fields.Integer(description='estimated work hours'),
+        'vote_duration_hours': fields.Integer(description='vote duration hours'),
         'currency_unit': fields.Nested(currency_dto.currency),
         'comments_count': fields.Integer(description='proposal comments count'),
     })
@@ -98,6 +102,8 @@ proposal_post = api.model(
         'amount': fields.String(description='proposal amount'),
         'status': fields.String(description='proposal status'),
         'tag': fields.String(description='proposal tag'),
+        'estimated_hours': fields.Integer(description='estimated work hours'),
+        'vote_duration_hours': fields.Integer(description='vote duration hours'),
     })
 
 proposal_put = api.model(
@@ -107,4 +113,6 @@ proposal_put = api.model(
         'detail': fields.String(description='detail'),
         'amount': fields.String(description='proposal amount'),
         'tag': fields.String(description='proposal tag'),
+        'estimated_hours': fields.Integer(description='estimated work hours'),
+        'vote_duration_hours': fields.Integer(description='vote duration hours'),
     })
