@@ -39,9 +39,19 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
     detail = db.Column(db.Text)
     vote_rule = db.Column(db.Text)
     cover = db.Column(db.String(100))  # proposal cover image filename
-    theme_style = db.Column(
-        db.Text
-    )  # proposal theme style css: {'background':'#ccc', 'color':'#fff'}
+
+    # 专区主题
+    # proposal theme style css: {'background':'#ccc', 'color':'#fff'}
+    theme_style = db.Column(db.Text)
+
+    # 投票最小持续时间
+    vote_duration_hours_min = db.Column(db.Integer,
+                                        default=1)  # vote min duration: 1h
+
+    # 投票最大持续时间
+    vote_duration_hours_max = db.Column(
+        db.Integer, default=120)  # vote min duration: 120h=5day
+
     vote_addr_weight_json = db.Column(db.Text)
     proposals = db.relationship('Proposal',
                                 foreign_keys='Proposal.zone_id',
@@ -74,6 +84,13 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     summary = db.Column(db.String(200))
     detail = db.Column(db.Text)
     status = db.Column(db.Integer)
+
+    # 预计工时
+    estimated_hours = db.Column(db.Integer, nullable=True)
+
+    # 投票最大持续时间
+    vote_duration_hours = db.Column(
+        db.Integer, default=7200)  # vote default duration: 7200min=5day
 
     # 注意，backref 不能跟 talename 重名
     comments = db.relationship('Comment',
