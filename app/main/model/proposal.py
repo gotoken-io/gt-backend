@@ -44,6 +44,9 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
     # proposal theme style css: {'background':'#ccc', 'color':'#fff'}
     theme_style = db.Column(db.Text)
 
+    # 专区主题色
+    theme_color = db.Column(db.Text)
+
     # 投票最小持续时间
     vote_duration_hours_min = db.Column(db.Integer,
                                         default=1)  # vote min duration: 1h

@@ -18,8 +18,8 @@ proposal_zone = api.model(
         fields.String(description='detail'),
         'cover':
         fields.String(description='cover filename'),
-        'theme_style':
-        fields.String(required=True, description='proposal zone theme css'),
+        'theme_color':
+        fields.String(required=True, description='proposal zone theme color'),
         'vote_rule':
         fields.String(description='vote rule'),
         'vote_addr_weight_json':

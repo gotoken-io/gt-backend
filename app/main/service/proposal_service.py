@@ -108,6 +108,7 @@ def save_new_proposal_zone(data):
                 summary=data['summary'],
                 detail=data['detail'],
                 theme_style=data.get('theme_style', None),
+                theme_color=data.get('theme_color', None),
                 cover=data.get('cover', None),
                 vote_rule=data['vote_rule'],
                 vote_addr_weight_json=data['vote_addr_weight_json'],
@@ -152,7 +153,8 @@ def update_proposal_zone(id, data, user):
             proposal_zone.summary = data['summary']
             proposal_zone.detail = data['detail']
             proposal_zone.cover = data['cover']
-            proposal_zone.theme_style = data['theme_style']
+            proposal_zone.theme_style = data.get('theme_style', None)
+            proposal_zone.theme_color = data.get('theme_color', None)
             proposal_zone.vote_rule = data['vote_rule']
             proposal_zone.vote_addr_weight_json = data['vote_addr_weight_json']
 
