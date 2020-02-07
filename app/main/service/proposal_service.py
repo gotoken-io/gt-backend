@@ -219,7 +219,7 @@ def save_new_proposal(data):
             currency_id=data['currency_id'],
             tag=data['tag'],
             estimated_hours=data.get('estimated_hours', 0),
-            vote_duration_hours=data.get('vote_duration_hours', 120),
+            vote_duration_hours=data.get('vote_duration_hours', 0),
         )
 
         save_changes(new_proposal)
@@ -275,7 +275,6 @@ def update_proposal(id, data, user):
         proposal.category_id = category_id
 
         proposal.estimated_hours = data.get('estimated_hours', 0)
-        proposal.vote_duration_hours = data.get('vote_duration_hours', 24)
 
         db.session.commit()
 
