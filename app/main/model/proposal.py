@@ -34,7 +34,7 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
 
     name = db.Column(db.String(100), unique=True)
     title = db.Column(db.String(100))
-    token = db.Column(db.String(100), unique=True)  # token name
+    token = db.Column(db.String(100))  # token name
     summary = db.Column(db.String(200))
     detail = db.Column(db.Text)
     vote_rule = db.Column(db.Text)
@@ -56,13 +56,41 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
         db.Integer, default=120)  # vote min duration: 120h=5day
 
     vote_addr_weight_json = db.Column(db.Text)
+
+    # 该专区下的提案
     proposals = db.relationship('Proposal',
                                 foreign_keys='Proposal.zone_id',
                                 backref='zone',
                                 lazy='dynamic')
 
+    # 该专区支持的代币
+    currencies = db.relationship('Currency',
+                                 secondary='zone_currency',
+                                 backref="zones")
+
+    # 绑定了该专区的用户钱包
+    wallets = db.relationship('Wallet',
+                              foreign_keys='Wallet.zone_id',
+                              backref="zone",
+                              lazy='dynamic')
+
     def __repr__(self):
         return "<Proposal Zone '{}'>".format(self.name)
+
+
+# 专区与支持代币多对多关系
+class ProposalZone_Currency(BaseModelMixin, TimestampMixin, db.Model):
+    """
+    Proposal zone - currency relations
+    """
+    __tablename__ = 'zone_currency'
+
+    zone_id = db.Column(db.Integer,
+                        db.ForeignKey('proposal_zone.id'),
+                        primary_key=True)
+    currency_id = db.Column(db.Integer,
+                            db.ForeignKey('currency.id'),
+                            primary_key=True)
 
 
 class Proposal(BaseModelMixin, TimestampMixin, db.Model):
@@ -81,6 +109,8 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
                             nullable=True)
     tag = db.Column(db.String(200))
     amount = db.Column(db.DECIMAL)
+
+    # 前端上,只能选择该专区支持的代币
     currency_id = db.Column(db.Integer,
                             db.ForeignKey('currency.id'),
                             nullable=True)

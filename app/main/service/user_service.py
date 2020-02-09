@@ -2,8 +2,12 @@ import uuid
 import datetime
 
 from app.main import db
+from sqlalchemy import and_
 from app.main.model.user import User
-from app.main.model.proposal import Proposal
+from app.main.model.wallet import Wallet
+from app.main.model.proposal import Proposal, ProposalZone
+from app.main.model.currency import Currency
+
 from app.main.service.util import save_changes
 from app.main.service.upload_service import delete_image
 from app.main.service.util.uuid import version_uuid
@@ -169,3 +173,125 @@ def reset_password(data):
             'message': res[1],
         }
         return response_object, 200
+
+
+def get_user_wallet(user):
+    return user.wallets.all()
+
+
+def validate_user_wallet_data(data):
+    user_id = data.get('user_id', None)
+    zone_id = data.get('zone_id', None)
+    currency_id = data.get('currency_id', None)
+    address = data.get('address', None)
+
+    user = User.query.filter_by(id=user_id).first()
+    zone = ProposalZone.query.filter_by(id=zone_id).first()
+    currency = Currency.query.filter_by(id=currency_id).first()
+
+    if user == None:
+        response_object = {
+            'status': 'fail',
+            'message': 'user is not exists.',
+        }
+        return response_object, False
+
+    if zone == None:
+        response_object = {
+            'status': 'fail',
+            'message': 'zone is not exists.',
+        }
+        return response_object, False
+
+    if currency == None:
+        response_object = {
+            'status': 'fail',
+            'message': 'currency is not exists.',
+        }
+        return response_object, False
+
+    return {}, True
+
+
+def add_user_wallet_addr(data):
+
+    user_id = data.get('user_id', None)
+    zone_id = data.get('zone_id', None)
+    currency_id = data.get('currency_id', None)
+    address = data.get('address', None)
+
+    try:
+
+        validate_res = validate_user_wallet_data(data)
+        if validate_res[1] == False:
+            return validate_res[0], 200
+
+        wallet = Wallet.query.filter_by(zone_id=zone_id,
+                                        currency_id=currency_id).first()
+
+        # check exist same record
+        if wallet:
+            response_object = {
+                'status': 'fail',
+                'message': 'already exist same zone and currency record.',
+            }
+            return response_object, 200
+
+        new_wallet = Wallet(
+            user_id=user_id,
+            zone_id=zone_id,
+            currency_id=currency_id,
+            address=address,
+        )
+
+        save_changes(new_wallet)
+
+        response_object = {
+            'status': 'success',
+            'message': 'add user wallet success.',
+        }
+        return response_object, 200
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 401
+
+
+def update_user_wallet_addr(data):
+    user_id = data.get('user_id', None)
+    zone_id = data.get('zone_id', None)
+    currency_id = data.get('currency_id', None)
+    address = data.get('address', None)
+
+    try:
+
+        validate_res = validate_user_wallet_data(data)
+        if validate_res[1] == False:
+            return validate_res[0], 200
+
+        wallet = Wallet.query.filter_by(zone_id=zone_id,
+                                        currency_id=currency_id).first()
+
+        # check exist wallet
+        if wallet:
+
+            # change address
+            wallet.address = address
+            db.session.commit()
+
+            response_object = {
+                'status': 'success',
+                'message': 'update user wallet success.',
+            }
+            return response_object, 200
+        else:
+            response_object = {
+                'status': 'fail',
+                'message': 'same zone_id,currency_id wallet is not exist.',
+            }
+            return response_object, 200
+
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 401

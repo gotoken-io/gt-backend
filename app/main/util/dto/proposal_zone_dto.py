@@ -1,7 +1,9 @@
 from flask_restplus import Namespace, fields
+import app.main.util.dto.currency_dto as currency_dto
 
 api = Namespace('proposal_zone',
                 description='proposal zone related operations')
+
 proposal_zone = api.model(
     'proposal_zone', {
         'id':
@@ -10,8 +12,8 @@ proposal_zone = api.model(
         fields.String(required=True, description='proposal zone name'),
         'title':
         fields.String(required=True, description='proposal zone title'),
-        'token':
-        fields.String(required=True, description='proposal zone token'),
+        'currencies':
+        fields.List(fields.Nested(currency_dto.currency)),
         'summary':
         fields.String(description='summary'),
         'detail':

@@ -101,6 +101,7 @@ def save_new_proposal_zone(data):
     proposal_zone = ProposalZone.query.filter_by(name=data['name']).first()
     if not proposal_zone:
         try:
+
             new_proposal_zone = ProposalZone(
                 name=data['name'],
                 token=data['token'],
@@ -118,6 +119,15 @@ def save_new_proposal_zone(data):
                 vote_duration_hours_max=data.get('vote_duration_hours_max',
                                                  120),
             )
+
+            currency_ids = data.get('currency_ids', [])
+
+            # add currency
+            for c_id in currency_ids:
+                currency = Currency.query.get(c_id)
+                if currency is not None:
+                    new_proposal_zone.currencies.append(currency)
+
             save_changes(new_proposal_zone)
             response_object = {
                 'status': 'success',
@@ -163,6 +173,18 @@ def update_proposal_zone(id, data, user):
                 'vote_duration_hours_min', 24)
             proposal_zone.vote_duration_hours_max = data.get(
                 'vote_duration_hours_max', 120)
+
+            # link currencies
+            currency_ids = data.get('currency_ids', [])
+
+            # clear currencies
+            proposal_zone.currencies.clear()
+
+            # add currency
+            for c_id in currency_ids:
+                currency = Currency.query.get(c_id)
+                if currency is not None:
+                    proposal_zone.currencies.append(currency)
 
             # write to db
             db.session.commit()

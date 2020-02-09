@@ -4,6 +4,7 @@ from flask_restplus import Resource
 from app.main.util.decorator import admin_token_required, token_required
 import app.main.util.dto.proposal_dto as proposal_dto
 import app.main.util.dto.user_dto as user_dto
+import app.main.util.dto.wallet_dto as wallet_dto
 from app.main.service import user_service
 
 api = user_dto.api
@@ -122,6 +123,47 @@ class UserAvatar(Resource):
                 'message': 'User is not exit',
             }
             return response_object, 404
+
+
+@api.route('/<id>/wallet')
+@api.response(404, 'User not found.')
+class UserWallet(Resource):
+    @api.doc('get user wallet')
+    @token_required
+    @api.marshal_list_with(wallet_dto.user_wallet_get, envelope='data')
+    def get(self, id):
+        """get a user proposals"""
+        user = get_a_user(id)
+        if not user:
+            api.abort(404)
+        else:
+            return user_service.get_user_wallet(user)
+
+    @api.doc('add user wallet address')
+    @token_required
+    def post(self, id):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        if user:
+            post_data['user_id'] = user.id
+            return user_service.add_user_wallet_addr(data=post_data)
+
+    @api.doc('update user wallet address')
+    @token_required
+    def put(self, id):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        if user:
+            post_data['user_id'] = user.id
+            return user_service.update_user_wallet_addr(data=post_data)
 
 
 @api.route('/forget-password')
