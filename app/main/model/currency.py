@@ -12,6 +12,11 @@ class Currency(db.Model):
     unit = db.Column(db.String(100), unique=True)
     is_delete = db.Column(db.Boolean, nullable=False, default=False)
 
+    proposal_used = db.relationship('Proposal',
+                                    foreign_keys='Proposal.currency_id',
+                                    backref='currency_unit',
+                                    lazy='dynamic')
+
     wallets = db.relationship('Wallet',
                               foreign_keys='Wallet.currency_id',
                               backref='currency',

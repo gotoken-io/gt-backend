@@ -134,15 +134,6 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     def __repr__(self):
         return "<Proposal '{}'>".format(self.title)
 
-    def zone(self):
-        return ProposalZone.query.filter(zone=self).first()
-
-    def creator(self):
-        return User.query.filter(creator=self).first()
-
-    def currency_unit(self):
-        return Currency.query.filter(currency_unit=self).first()
-
     # 加上 @property 注解,表示这是一个属性字段
     # @property
     # def comments_count(self):
