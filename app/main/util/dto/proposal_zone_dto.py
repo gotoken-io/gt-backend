@@ -13,7 +13,7 @@ proposal_zone = api.model(
         'title':
         fields.String(required=True, description='proposal zone title'),
         'currencies':
-        fields.List(fields.Nested(currency_dto.currency)),
+        fields.List(fields.Nested(currency_dto.currency_short)),
         'summary':
         fields.String(description='summary'),
         'detail':

@@ -10,6 +10,13 @@ proposal_zone = api.model(
                                description='proposal zone title'),
     })
 
+currency_short = api.model(
+    'currency', {
+        'id': fields.String(description='The currency id'),
+        'name': fields.String(description='The currency name'),
+        'unit': fields.String(description='The currency unit'),
+    })
+
 currency = api.model(
     'currency', {
         'id': fields.String(description='The currency id'),

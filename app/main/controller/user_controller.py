@@ -125,15 +125,16 @@ class UserAvatar(Resource):
             return response_object, 404
 
 
-@api.route('/<id>/wallet')
-@api.response(404, 'User not found.')
+# current logined user wallet
+@api.route('/wallet')
 class UserWallet(Resource):
     @api.doc('get user wallet')
     @token_required
     @api.marshal_list_with(wallet_dto.user_wallet_get, envelope='data')
-    def get(self, id):
-        """get a user proposals"""
-        user = get_a_user(id)
+    def get(self):
+        # get current user token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
         if not user:
             api.abort(404)
         else:
@@ -141,7 +142,7 @@ class UserWallet(Resource):
 
     @api.doc('add user wallet address')
     @token_required
-    def post(self, id):
+    def post(self):
         # get the post data
         post_data = request.json
         # get auth token
@@ -154,7 +155,7 @@ class UserWallet(Resource):
 
     @api.doc('update user wallet address')
     @token_required
-    def put(self, id):
+    def put(self):
         # get the post data
         post_data = request.json
         # get auth token
