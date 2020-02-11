@@ -159,7 +159,7 @@ def update_proposal_zone(id, data, user):
         try:
             proposal_zone.name = data['name']
             proposal_zone.title = data['title']
-            proposal_zone.token = data['token']
+            # proposal_zone.token = data.get('token', None)
             proposal_zone.summary = data['summary']
             proposal_zone.detail = data['detail']
             proposal_zone.cover = data['cover']
