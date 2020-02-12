@@ -18,16 +18,19 @@ pagination = api.model(
         fields.Integer(description='Total number of results'),
     })
 
-
 proposal_category = api.model(
-    'category',{
-        'id': fields.Integer(description='proposal category id'),
-        'name': fields.String(required=True, description='proposal category name'),
-        'name_en': fields.String(description='proposal category name(en)'),
-        'order': fields.Integer(description='proposal category order index', default=0),
-        'proposals_count': fields.Integer(description='related proposal count'),
-    }
-)
+    'category', {
+        'id':
+        fields.Integer(description='proposal category id'),
+        'name':
+        fields.String(required=True, description='proposal category name'),
+        'name_en':
+        fields.String(description='proposal category name(en)'),
+        'order':
+        fields.Integer(description='proposal category order index', default=0),
+        'proposals_count':
+        fields.Integer(description='related proposal count'),
+    })
 
 # 用户创建的 proposal
 proposal_created_item = api.model(
@@ -35,6 +38,8 @@ proposal_created_item = api.model(
         'id': fields.String(description='proposal id'),
         'title': fields.String(required=True, description='proposal title'),
         'summary': fields.String(description='summary'),
+        'status': fields.Integer(description='status'),
+        'status_key': fields.String(description='status key'),
         'detail': fields.String(description='detail'),
         'amount': fields.String(description='proposal amount'),
         'status': fields.String(description='proposal status'),
@@ -46,7 +51,8 @@ proposal_created_item = api.model(
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'currency_unit': fields.Nested(currency_dto.currency),
         'estimated_hours': fields.Integer(description='estimated work hours'),
-        'vote_duration_hours': fields.Integer(description='vote duration hours'),
+        'vote_duration_hours':
+        fields.Integer(description='vote duration hours'),
     })
 
 proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
@@ -64,14 +70,14 @@ user_get = api.model(
 
 creator_fields = fields.Nested(user_get)
 
-
 proposal = api.model(
-    'proposal',
-    {
+    'proposal', {
         'id': fields.String(description='proposal id'),
         'zone_proposal_id': fields.String(description='proposal id in zone'),
         'title': fields.String(required=True, description='proposal title'),
         'summary': fields.String(description='summary'),
+        'status': fields.Integer(description='status'),
+        'status_key': fields.String(description='status key'),
         'detail': fields.String(description='detail'),
         'amount': fields.String(description='proposal amount'),
         'status': fields.String(description='proposal status'),
@@ -83,9 +89,11 @@ proposal = api.model(
         'zone': fields.Nested(proposal_zone_dto.proposal_zone),
         'creator': creator_fields,
         'estimated_hours': fields.Integer(description='estimated work hours'),
-        'vote_duration_hours': fields.Integer(description='vote duration hours'),
+        'vote_duration_hours':
+        fields.Integer(description='vote duration hours'),
         'currency_unit': fields.Nested(currency_dto.currency),
-        'comments_count': fields.Integer(description='proposal comments count'),
+        'comments_count':
+        fields.Integer(description='proposal comments count'),
     })
 
 page_of_proposals = api.inherit(
@@ -103,7 +111,8 @@ proposal_post = api.model(
         'status': fields.String(description='proposal status'),
         'tag': fields.String(description='proposal tag'),
         'estimated_hours': fields.Integer(description='estimated work hours'),
-        'vote_duration_hours': fields.Integer(description='vote duration hours'),
+        'vote_duration_hours':
+        fields.Integer(description='vote duration hours'),
     })
 
 proposal_put = api.model(
@@ -114,5 +123,6 @@ proposal_put = api.model(
         'amount': fields.String(description='proposal amount'),
         'tag': fields.String(description='proposal tag'),
         'estimated_hours': fields.Integer(description='estimated work hours'),
-        'vote_duration_hours': fields.Integer(description='vote duration hours'),
+        'vote_duration_hours':
+        fields.Integer(description='vote duration hours'),
     })

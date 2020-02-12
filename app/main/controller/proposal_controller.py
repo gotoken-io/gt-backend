@@ -181,6 +181,26 @@ class ProposalSingleAPI(Resource):
             return delete_proposal(id=id, user=user)
 
 
+@api_proposal.route('/<id>/status')
+@api_proposal.param('id', 'Proposal id')
+@api_proposal.response(404, 'Proposal not found.')
+class ProposalStatusAPI(Resource):
+    @api_proposal.doc('update proposal status')
+    @api_proposal.expect(proposal_post)
+    @admin_token_required
+    def put(self, id):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        if user:
+            return proposal_service.update_proposal_status(id=id,
+                                                           data=post_data,
+                                                           user=user)
+
+
 @api_proposal.route('/category')
 class ProposalCategoryAPI(Resource):
     @api_proposal.doc('get all proposal categories')

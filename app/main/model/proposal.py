@@ -5,6 +5,7 @@ from app.main.model.currency import Currency
 from app.main.model.comment import Comment
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import select, func, and_
+from app.main.util.proposal import ProposalStatus
 
 
 class Category(BaseModelMixin, TimestampMixin, db.Model):
@@ -116,7 +117,25 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
                             nullable=True)
     summary = db.Column(db.String(200))
     detail = db.Column(db.Text)
+
+    # 提案状态
+
+    # 100 待投票: 创建后第一个状态,此时还未上链
+    # 200 立项投票中: 上链成功, 在规定投票时间内进行链上投票
+    # 300 申领中: 如果投票通过, 提案状态自动改变(投票结束时达成条件)
+    # 400 投票未通过: 在规定投票时内, 没有达成通过条件, 状态自动改变
+    # 以下是 status=300 后才会有的状态
+    # 500 进行中: 由(专区)管理员修改到此状态
+    # 600 验收中: 由(专区)管理员修改到此状态，此时需要进行多签投票,决定提案是否验收
+    # 700 已完成: 如果投票通过, 提案状态自动改变(投票结束时达成条件)
+    # 800 失败: 验收投票不通过, 提案状态自动改变(投票结束时达成条件)
     status = db.Column(db.Integer)
+
+    # 是否已经上链
+    # onchain = db.Column(db.Boolean, default=False)
+
+    # 上链后的 hash
+    onchain_hash = db.Column(db.String(500))
 
     # 预计工时
     estimated_hours = db.Column(db.Integer, nullable=True)
@@ -138,6 +157,10 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     # @property
     # def comments_count(self):
     #     return Comment.query.with_parent(self).filter_by(is_delete=0).count()
+
+    @property
+    def status_key(self):
+        return ProposalStatus(self.status).name
 
     @hybrid_property
     def comments_count(self):

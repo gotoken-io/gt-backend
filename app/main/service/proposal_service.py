@@ -4,6 +4,7 @@ from app.main.model import User, ProposalZone, Proposal, Currency, Category
 from app.main.service.util import save_changes
 from app.main.config import Config
 from sqlalchemy import desc, asc
+from app.main.util.proposal import ProposalStatus
 
 # def detect_user_exist(func):
 #     def wrapper(data):
@@ -309,6 +310,41 @@ def update_proposal(id, data, user):
         print(e)
         response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
+
+# update proposal status
+def update_proposal_status(id, data, user):
+    # check id is exist
+    proposal = Proposal.query.filter_by(id=id).first()
+    if not proposal:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal is not exists.',
+        }
+        return response_object, 404
+
+    # only admin can udpate status
+    if (user.admin != True):
+        response_object = {
+            'status': 'fail',
+            'message': 'permission deny',
+        }
+        return response_object, 403
+
+    try:
+        status_key = data.get('status_key', 'wait_to_vote')
+        proposal.status = ProposalStatus[status_key].value
+
+        db.session.commit()
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully update proposal status.',
+        }
+        return response_object, 200
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 200
 
 
 def delete_proposal(id, user):
