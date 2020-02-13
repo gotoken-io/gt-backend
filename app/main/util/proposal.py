@@ -19,3 +19,15 @@ class ProposalStatus(Enum):
     checking = 600
     success = 700
     fail = 800
+
+@unique
+class ProposalLogEvent(Enum):
+
+    create = 1 # 创建提案
+    update_info = 2 # 更新提案信息
+    update_status = 3 # 更新提案状态
+    update_progress = 4 # 更新项目进度
+    onchain_success = 5 # 提案上链成功
+    onchain_fail = 6 # 提案上链失败
+    vote = 7 # 给提案投票
+    vote_result = 8 # 投票结果产生

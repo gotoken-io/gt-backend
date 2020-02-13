@@ -6,6 +6,20 @@ from app.main.util.dto.comment_dto import comment_get_list
 
 api = Namespace('proposal', description='proposal related operations')
 
+user_get = api.model(
+    'user',
+    {
+        'email': fields.String(required=True,
+                               description='user email address'),
+        'username': fields.String(required=True, description='user username'),
+        'avatar': fields.String(description='user avatar'),
+        'public_id': fields.String(description='user public Identifier'),
+        'id': fields.String(description='user Identifier'),
+        # 'proposals_created': proposals_created_fields
+    })
+
+user_fields = fields.Nested(user_get)
+
 pagination = api.model(
     'A page of results', {
         'page':
@@ -16,6 +30,20 @@ pagination = api.model(
         fields.Integer(description='Number of items per page of results'),
         'total':
         fields.Integer(description='Total number of results'),
+    })
+
+proposal_log = api.model(
+    'proposal_log', {
+        'id': fields.Integer(description='log id'),
+        'proposal_id': fields.Integer(description='proposal id'),
+        'event': fields.Integer(description='event id'),
+        'event_key': fields.String(description='event key'),
+        'from_value': fields.String(description='event from value'),
+        'to_value': fields.String(description='event from value'),
+        'operator': user_fields,
+        'creator': user_fields,
+        'op_time': fields.DateTime(description='created timestamp'),
+        'created': fields.DateTime(description='created timestamp'),
     })
 
 proposal_category = api.model(
@@ -56,17 +84,6 @@ proposal_created_item = api.model(
     })
 
 proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
-user_get = api.model(
-    'user',
-    {
-        'email': fields.String(required=True,
-                               description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'avatar': fields.String(description='user avatar'),
-        'public_id': fields.String(description='user public Identifier'),
-        'id': fields.String(description='user Identifier'),
-        # 'proposals_created': proposals_created_fields
-    })
 
 creator_fields = fields.Nested(user_get)
 

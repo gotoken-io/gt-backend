@@ -5,7 +5,8 @@ from app.main.model.currency import Currency
 from app.main.model.comment import Comment
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import select, func, and_
-from app.main.util.proposal import ProposalStatus
+from app.main.util.proposal import ProposalStatus, ProposalLogEvent
+from datetime import datetime
 
 
 class Category(BaseModelMixin, TimestampMixin, db.Model):
@@ -170,3 +171,33 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     def comments_count(cls):
         return (select([func.count(Comment.id)]).where(
             and_(Comment.proposal_id == cls.id, Comment.is_delete == 0)))
+
+
+class ProposalLog(BaseModelMixin, TimestampMixin, db.Model):
+    """
+    proposal log
+    """
+
+    __tablename__ = 'proposal_log'
+
+    proposal_id = db.Column(db.Integer,
+                            db.ForeignKey('proposal.id'),
+                            nullable=False)
+
+    event = db.Column(db.Integer)
+    from_value = db.Column(db.Text, nullable=True)  # 操作前的值
+    to_value = db.Column(db.Text, nullable=True)  # 操作后的值
+    op_user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    op_time = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
+
+    @property
+    def event_key(self):
+        return ProposalLogEvent(self.event).name
+
+    @property
+    def operator(self):
+        return User.query.filter_by(id=self.op_user_id).first()
+
+    @property
+    def creator(self):
+        return User.query.filter_by(id=self.creator_id).first()

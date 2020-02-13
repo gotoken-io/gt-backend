@@ -201,6 +201,35 @@ class ProposalStatusAPI(Resource):
                                                            user=user)
 
 
+@api_proposal.route('/<id>/log')
+@api_proposal.param('id', 'Proposal id')
+@api_proposal.response(404, 'Proposal not found.')
+class ProposalLogAPI(Resource):
+    @api_proposal.doc('get proposal logs')
+    @api_proposal.marshal_list_with(proposal_dto.proposal_log, envelope='data')
+    def get(self, id):
+        return proposal_service.get_a_proposal_logs(proposal_id=id)
+
+
+@api_proposal.route('/<id>/progress')
+@api_proposal.param('id', 'Proposal id')
+@api_proposal.response(404, 'Proposal not found.')
+class ProposalProgressAPI(Resource):
+    @api_proposal.doc('add proposal progress')
+    @token_required
+    def post(self, id):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        if user:
+            return proposal_service.add_proposal_progress(id=id,
+                                                          data=post_data,
+                                                          user=user)
+
+
 @api_proposal.route('/category')
 class ProposalCategoryAPI(Resource):
     @api_proposal.doc('get all proposal categories')

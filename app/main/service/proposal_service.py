@@ -1,10 +1,11 @@
 import uuid
 from app.main import db
-from app.main.model import User, ProposalZone, Proposal, Currency, Category
+from app.main.model import User, ProposalZone, Proposal, Currency, Category, ProposalLog
 from app.main.service.util import save_changes
 from app.main.config import Config
 from sqlalchemy import desc, asc
-from app.main.util.proposal import ProposalStatus
+from app.main.util.proposal import ProposalStatus, ProposalLogEvent
+from datetime import datetime
 
 # def detect_user_exist(func):
 #     def wrapper(data):
@@ -16,6 +17,36 @@ from app.main.util.proposal import ProposalStatus
 #             }
 #             return response_object, 404
 #     return wrapper
+
+
+def create_proposal_log(proposal_id,
+                        event_key,
+                        op_user_id,
+                        creator_id,
+                        op_time=datetime.utcnow(),
+                        from_value=None,
+                        to_value=None):
+
+    proposal = Proposal.query.filter_by(id=proposal_id).first()
+    if proposal == None:
+        raise Exception("proposal id is not exist.")
+
+    new_proposal_log = ProposalLog(
+        proposal_id=proposal_id,
+        event=ProposalLogEvent[event_key].value,
+        op_user_id=op_user_id,
+        op_time=op_time,
+        from_value=from_value,
+        to_value=to_value,
+        creator_id=creator_id,
+    )
+
+    save_changes(new_proposal_log)
+
+
+# get all proposal logs by proposal id
+def get_a_proposal_logs(proposal_id):
+    return ProposalLog.query.filter_by(proposal_id=proposal_id).all()
 
 
 def get_all_proposal_zone():
@@ -246,8 +277,14 @@ def save_new_proposal(data):
         )
 
         save_changes(new_proposal)
+
+        # add proposal log, create
+        create_proposal_log(new_proposal.id, 'create', new_proposal.creator_id,
+                            new_proposal.creator_id)
+
         response_object = {
             'status': 'success',
+            'data': new_proposal.id,
             'message': 'Successfully create a new proposal.',
         }
         return response_object, 201
@@ -301,6 +338,10 @@ def update_proposal(id, data, user):
 
         db.session.commit()
 
+        # add proposal log, update info
+        create_proposal_log(proposal.id, 'update_info', proposal.creator_id,
+                            proposal.creator_id)
+
         response_object = {
             'status': 'success',
             'message': 'Successfully update proposal.',
@@ -310,6 +351,53 @@ def update_proposal(id, data, user):
         print(e)
         response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
+
+def add_proposal_progress(id, data, user):
+    # check id is exist
+    proposal = Proposal.query.filter_by(id=id).first()
+    if not proposal:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal is not exists.',
+        }
+        return response_object, 404
+
+    # only creator, admin can udpate
+    if (proposal.creator_id != user.id and user.admin != True):
+        response_object = {
+            'status': 'fail',
+            'message': 'permission deny',
+        }
+        return response_object, 403
+
+    try:
+        progress_content = data.get(
+            'progress_content')  # proposal progress content
+
+        if progress_content == None:
+            response_object = {
+                'status': 'fail',
+                'message': 'progress_content is required.',
+            }
+            return response_object, 200
+
+        # add proposal log, update progress
+        create_proposal_log(proposal_id=proposal.id,
+                            event_key='update_progress',
+                            op_user_id=proposal.creator_id,
+                            creator_id=proposal.creator_id,
+                            to_value=progress_content)
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully add a proposal progress.',
+        }
+        return response_object, 200
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 200
 
 
 # update proposal status
@@ -336,6 +424,11 @@ def update_proposal_status(id, data, user):
         proposal.status = ProposalStatus[status_key].value
 
         db.session.commit()
+
+        # add proposal log, update status
+        create_proposal_log(proposal.id, 'update_status', proposal.creator_id,
+                            proposal.creator_id)
+
         response_object = {
             'status': 'success',
             'message': 'Successfully update proposal status.',

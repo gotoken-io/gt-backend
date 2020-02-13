@@ -1,5 +1,5 @@
 from .user import User
-from .proposal import Proposal, ProposalZone, Category
+from .proposal import Proposal, ProposalZone, Category, ProposalLog
 from .currency import Currency
 from .mixin import BaseModelMixin, TimestampMixin
 from .blacklist import BlacklistToken
