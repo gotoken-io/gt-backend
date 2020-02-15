@@ -6,19 +6,16 @@ from app.main.util.dto.comment_dto import comment_get_list
 
 api = Namespace('proposal', description='proposal related operations')
 
-user_get = api.model(
-    'user',
-    {
-        'email': fields.String(required=True,
-                               description='user email address'),
-        'username': fields.String(required=True, description='user username'),
-        'avatar': fields.String(description='user avatar'),
-        'public_id': fields.String(description='user public Identifier'),
-        'id': fields.String(description='user Identifier'),
-        # 'proposals_created': proposals_created_fields
+_user_get = api.model(
+    'user', {
+        'id': fields.String(description='user id'),
+        'email': fields.String(description='user email address'),
+        'username': fields.String(description='user username'),
+        'nickname': fields.String(description='user nickname'),
+        'avatar': fields.String(description='user avatar url'),
     })
 
-user_fields = fields.Nested(user_get)
+user_fields = fields.Nested(_user_get)
 
 pagination = api.model(
     'A page of results', {
@@ -85,7 +82,7 @@ proposal_created_item = api.model(
 
 proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
 
-creator_fields = fields.Nested(user_get)
+creator_fields = fields.Nested(_user_get)
 
 proposal = api.model(
     'proposal', {

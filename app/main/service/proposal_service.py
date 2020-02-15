@@ -46,7 +46,8 @@ def create_proposal_log(proposal_id,
 
 # get all proposal logs by proposal id
 def get_a_proposal_logs(proposal_id):
-    return ProposalLog.query.filter_by(proposal_id=proposal_id).all()
+    return ProposalLog.query.filter_by(proposal_id=proposal_id).order_by(
+        desc(ProposalLog.op_time)).all()
 
 
 def get_all_proposal_zone():
@@ -421,6 +422,7 @@ def update_proposal_status(id, data, user):
 
     try:
         status_key = data.get('status_key', 'wait_to_vote')
+        old_status_key = proposal.status
         proposal.status = ProposalStatus[status_key].value
 
         db.session.commit()
@@ -428,6 +430,13 @@ def update_proposal_status(id, data, user):
         # add proposal log, update status
         create_proposal_log(proposal.id, 'update_status', proposal.creator_id,
                             proposal.creator_id)
+
+        create_proposal_log(proposal_id=proposal.id,
+                            event_key='update_status',
+                            op_user_id=proposal.creator_id,
+                            creator_id=proposal.creator_id,
+                            from_value=old_status_key,
+                            to_value=status_key)
 
         response_object = {
             'status': 'success',
