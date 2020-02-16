@@ -59,15 +59,15 @@ proposal_category = api.model(
 
 # 用户创建的 proposal
 proposal_created_item = api.model(
-    'proposal', {
+    'proposal',
+    {
         'id': fields.String(description='proposal id'),
         'title': fields.String(required=True, description='proposal title'),
         'summary': fields.String(description='summary'),
-        'status': fields.Integer(description='status'),
+        # 'status': fields.Integer(description='status'),
         'status_key': fields.String(description='status key'),
         'detail': fields.String(description='detail'),
         'amount': fields.String(description='proposal amount'),
-        'status': fields.String(description='proposal status'),
         'creator_id': fields.String(description='creator user.id'),
         'created': fields.DateTime(description='created timestamp'),
         'updated': fields.DateTime(description='updated timestamp'),
@@ -85,16 +85,16 @@ proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
 creator_fields = fields.Nested(_user_get)
 
 proposal = api.model(
-    'proposal', {
+    'proposal',
+    {
         'id': fields.String(description='proposal id'),
         'zone_proposal_id': fields.String(description='proposal id in zone'),
         'title': fields.String(required=True, description='proposal title'),
         'summary': fields.String(description='summary'),
-        'status': fields.Integer(description='status'),
+        # 'status': fields.Integer(description='status'),
         'status_key': fields.String(description='status key'),
         'detail': fields.String(description='detail'),
         'amount': fields.String(description='proposal amount'),
-        'status': fields.String(description='proposal status'),
         'creator_id': fields.String(description='creator user.id'),
         'created': fields.DateTime(description='created timestamp'),
         'updated': fields.DateTime(description='updated timestamp'),

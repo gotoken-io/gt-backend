@@ -135,10 +135,12 @@ class ProposalAPI(Resource):
         page = int(request.args.get("page", 1))
         sort_name = request.args.get("sort_name", "createtime")
         sort_by = request.args.get("sort_by", "desc")
+        status_key = request.args.get("status_key")
 
         return get_all_proposal(zone_id=zone_id,
                                 page=page,
                                 category_id=category_id,
+                                status_key=status_key,
                                 sort_name=sort_name,
                                 sort_by=sort_by)
 

@@ -54,17 +54,28 @@ def get_all_proposal_zone():
     return ProposalZone.query.filter_by(is_delete=0).all()
 
 
-def get_all_proposal(page=1,
-                     zone_id=None,
-                     category_id=None,
-                     sort_name="createtime",
-                     sort_by="desc"):
-
-    # default filter
-    get_proposals_filter = Proposal.query.filter_by(is_delete=0)
+def get_all_proposal(
+    page=1,
+    zone_id=None,
+    category_id=None,
+    status_key=None,  # proposal status key
+    sort_name="createtime",
+    sort_by="desc"):
 
     zone = None
     category = None
+    status = None
+
+    if status_key:
+        if status_key in ProposalStatus:
+            status = ProposalStatus[status_key].value
+
+    # default filter
+    if status:
+        get_proposals_filter = Proposal.query.filter_by(status=status,
+                                                        is_delete=0)
+    else:
+        get_proposals_filter = Proposal.query.filter_by(is_delete=0)
 
     if zone_id:
         zone = ProposalZone.query.filter_by(id=zone_id).first()
@@ -74,15 +85,33 @@ def get_all_proposal(page=1,
 
     if zone:
         # default filter(get all proposals in zone id)
-        get_proposals_filter = Proposal.query.filter_by(zone_id=zone_id,
-                                                        is_delete=0)
+        if status:
+            print(status)
+            get_proposals_filter = Proposal.query.filter_by(zone_id=zone_id,
+                                                            status=status,
+                                                            is_delete=0)
+        else:
+            get_proposals_filter = Proposal.query.filter_by(zone_id=zone_id,
+                                                            is_delete=0)
         if category:
-            get_proposals_filter = Proposal.query.filter_by(
-                zone_id=zone_id, category_id=category_id, is_delete=0)
+            if status:
+                get_proposals_filter = Proposal.query.filter_by(
+                    status=status,
+                    zone_id=zone_id,
+                    category_id=category_id,
+                    is_delete=0)
+            else:
+                get_proposals_filter = Proposal.query.filter_by(
+                    zone_id=zone_id, category_id=category_id, is_delete=0)
     else:
         if category:
-            get_proposals_filter = Proposal.query.filter_by(
-                category_id=category_id, is_delete=0)
+
+            if status:
+                get_proposals_filter = Proposal.query.filter_by(
+                    status=status, category_id=category_id, is_delete=0)
+            else:
+                get_proposals_filter = Proposal.query.filter_by(
+                    category_id=category_id, is_delete=0)
 
     # default order filter
     order_filter = Proposal.created.desc()
