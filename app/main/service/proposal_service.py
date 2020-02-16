@@ -459,13 +459,10 @@ def update_proposal_status(id, data, user):
         db.session.commit()
 
         # add proposal log, update status
-        create_proposal_log(proposal.id, 'update_status', proposal.creator_id,
-                            proposal.creator_id)
-
         create_proposal_log(proposal_id=proposal.id,
                             event_key='update_status',
-                            op_user_id=proposal.creator_id,
-                            creator_id=proposal.creator_id,
+                            op_user_id=user.id,
+                            creator_id=user.id,
                             from_value=old_status_key,
                             to_value=status_key)
 
