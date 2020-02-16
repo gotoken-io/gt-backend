@@ -42,7 +42,8 @@ def test():
 @manager.command
 def fix_db():
     # DbScript.add_init_create_log()
-    DbScript.set_all_proposal_status_none()
+    # DbScript.set_all_proposal_status_none()
+    DbScript.del_logs_update_status_double()
 
 
 if __name__ == '__main__':

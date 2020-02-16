@@ -29,3 +29,17 @@ class DbScript:
             proposal.status = None
             db.session.commit()
             print('修改状态成功')
+
+    def del_logs_update_status_double():
+        all_proposal_logs = ProposalLog.query.all()
+        for proposal_log in all_proposal_logs:
+            if (proposal_log.event_key == 'update_status'):
+                if (proposal_log.to_value == None):
+                    print(proposal_log.id, proposal_log.proposal_id,
+                          proposal_log.event_key, proposal_log.to_value,
+                          proposal_log.op_user_id)
+
+                    # delete
+                    db.session.delete(proposal_log)
+                    db.session.commit()
+                    print('delete success')
