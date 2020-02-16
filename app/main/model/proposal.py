@@ -151,6 +151,11 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
                                backref='link_proposal',
                                lazy='dynamic')
 
+    logs = db.relationship('ProposalLog',
+                           foreign_keys='ProposalLog.proposal_id',
+                           backref='proposal',
+                           lazy='dynamic')
+
     def __repr__(self):
         return "<Proposal '{}'>".format(self.title)
 
