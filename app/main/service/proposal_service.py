@@ -67,8 +67,10 @@ def get_all_proposal(
     status = None
 
     if status_key:
-        if status_key in ProposalStatus:
+        if hasattr(ProposalStatus, status_key):
             status = ProposalStatus[status_key].value
+
+    print(status)
 
     # default filter
     if status:
