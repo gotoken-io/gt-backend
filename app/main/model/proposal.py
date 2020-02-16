@@ -166,7 +166,8 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
 
     @property
     def status_key(self):
-        return ProposalStatus(self.status).name
+        if self.status:
+            return ProposalStatus(self.status).name
 
     @hybrid_property
     def comments_count(self):

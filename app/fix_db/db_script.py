@@ -4,8 +4,8 @@ from app.main.service.util import save_changes
 from app.main.service import proposal_service
 
 
-class addInitLog:
-    def run():
+class DbScript:
+    def add_init_create_log():
         create_proposal_log = proposal_service.create_proposal_log
 
         all_proposals = Proposal.query.all()
@@ -20,3 +20,12 @@ class addInitLog:
                                     op_time=proposal.created)
 
                 print('新增创建日志')
+
+    def set_all_proposal_status_none():
+
+        all_proposals = Proposal.query.all()
+        for proposal in all_proposals:
+            print(proposal.id, proposal.title, proposal.status)
+            proposal.status = None
+            db.session.commit()
+            print('修改状态成功')
