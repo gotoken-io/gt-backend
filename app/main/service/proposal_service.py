@@ -23,13 +23,16 @@ def create_proposal_log(proposal_id,
                         event_key,
                         op_user_id,
                         creator_id,
-                        op_time=datetime.utcnow(),
+                        op_time=None,
                         from_value=None,
                         to_value=None):
 
     proposal = Proposal.query.filter_by(id=proposal_id).first()
     if proposal == None:
         raise Exception("proposal id is not exist.")
+
+    if op_time == None:
+        op_time = datetime.utcnow()
 
     new_proposal_log = ProposalLog(
         proposal_id=proposal_id,
