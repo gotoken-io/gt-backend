@@ -160,6 +160,11 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
                            backref='proposal',
                            lazy='dynamic')
 
+    claims = db.relationship('ProposalClaim',
+                             foreign_keys='ProposalClaim.proposal_id',
+                             backref='proposal',
+                             lazy='dynamic')
+
     def __repr__(self):
         return "<Proposal '{}'>".format(self.title)
 

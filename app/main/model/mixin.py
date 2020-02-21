@@ -14,10 +14,10 @@ class BaseModelMixin(object):
     def creator_id(cls):
         return db.Column(db.Integer, db.ForeignKey('user.id'))
 
+
 class TimestampMixin(object):
     """
     timestamp mixin
     """
-    created = db.Column(
-        db.DateTime, nullable=False, default=datetime.utcnow)
+    created = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     updated = db.Column(db.DateTime, onupdate=datetime.utcnow)

@@ -1,5 +1,9 @@
 import hashlib
 import re
+import uuid
+
+def uuid4():
+    return str(uuid.uuid4())
 
 def sha3_256(data: bytes) -> bytes:
     h = hashlib.sha3_256()

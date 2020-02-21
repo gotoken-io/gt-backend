@@ -40,6 +40,12 @@ class User(db.Model):
                               backref='user',
                               lazy='dynamic')
 
+    # 该用户的申领
+    claims = db.relationship('ProposalClaim',
+                             foreign_keys='ProposalClaim.user_id',
+                             backref='claimer',
+                             lazy='dynamic')
+
     @property
     def password(self):
         raise AttributeError('password: write-only field')

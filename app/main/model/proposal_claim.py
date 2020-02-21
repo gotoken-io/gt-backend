@@ -4,10 +4,13 @@ from app.main.model.currency import Currency
 from app.main.model.user import User
 from app.main.model.proposal import Proposal
 from app.main.util.proposal_claim import ProposalClaimStatus
+from app.main.util.common import uuid4
 
 
 class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
     __tablename__ = "proposal_claim"
+
+    claim_id = db.Column(db.String(200), nullable=False, default=uuid4)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), primary_key=True)
     proposal_id = db.Column(db.Integer,
                             db.ForeignKey('proposal.id'),
@@ -24,7 +27,7 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
     # 申领理由
     reason = db.Column(db.Text)
 
-    budget_amount = db.Column(db.DECIMAL, default=0.0)
+    budget_amount = db.Column(db.DECIMAL, nullable=True)
     budget_currency_id = db.Column(db.Integer,
                                    db.ForeignKey('currency.id'),
                                    nullable=True)
