@@ -5,3 +5,4 @@ from .mixin import BaseModelMixin, TimestampMixin
 from .blacklist import BlacklistToken
 from .comment import Comment
 from .wallet import Wallet
+from .proposal_claim import ProposalClaim
