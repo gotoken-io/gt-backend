@@ -146,3 +146,18 @@ def get_user_claims(user_id):
 
     user_claims = ProposalClaim.query.filter_by(user_id=user_id).all()
     return user_claims
+
+
+def get_proposal_claims(proposal_id):
+    # check proposal
+    proposal = Proposal.query.filter_by(id=proposal_id).first()
+    if not proposal:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal is not exists.',
+        }
+        return response_object, 200
+
+    proposal_claims = ProposalClaim.query.filter_by(
+        proposal_id=proposal_id).all()
+    return proposal_claims

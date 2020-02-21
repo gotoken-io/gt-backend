@@ -5,7 +5,7 @@ from app.main.util.decorator import admin_token_required, token_required
 from app.main.service.user_service import get_a_user_by_auth_token
 
 from app.main.util.dto.proposal_claim_dto import proposal_claim, api
-from app.main.service.proposal_claim_service import claim_proposal, cancel_claim_proposal, get_user_claims
+import app.main.service.proposal_claim_service as proposal_claim_service
 
 api_proposal_claim = api
 
@@ -26,7 +26,8 @@ class ProposalClaimAPI(Resource):
         user = get_a_user_by_auth_token(auth_token)
 
         if user:
-            return claim_proposal(data=post_data, user_id=user.id)
+            return proposal_claim_service.claim_proposal(data=post_data,
+                                                         user_id=user.id)
 
     @api_proposal_claim.doc('cancel claim a proposal')
     @token_required
@@ -38,7 +39,8 @@ class ProposalClaimAPI(Resource):
         user = get_a_user_by_auth_token(auth_token)
 
         if user:
-            return cancel_claim_proposal(data=post_data, user_id=user.id)
+            return proposal_claim_service.cancel_claim_proposal(
+                data=post_data, user_id=user.id)
 
 
 @api_proposal_claim.route('/user/<user_id>')
@@ -50,4 +52,17 @@ class UserProposalClaimAPI(Resource):
     @api_proposal_claim.doc('get a user claim proposals')
     @api_proposal_claim.marshal_list_with(proposal_claim, envelope='data')
     def get(self, user_id):
-        return get_user_claims(user_id=user_id)
+        return proposal_claim_service.get_user_claims(user_id=user_id)
+
+
+@api_proposal_claim.route('/proposal/<proposal_id>')
+@api_proposal_claim.param('proposal_id', 'proposal id')
+class ProposalClaimsAPI(Resource):
+    """
+        User Proposals Claim Resource
+    """
+    @api_proposal_claim.doc('get a user claim proposals')
+    @api_proposal_claim.marshal_list_with(proposal_claim, envelope='data')
+    def get(self, proposal_id):
+        return proposal_claim_service.get_proposal_claims(
+            proposal_id=proposal_id)
