@@ -308,8 +308,12 @@ def save_new_proposal(data):
             currency_id=data['currency_id'],
             tag=data['tag'],
             estimated_hours=data.get('estimated_hours', 0),
+            vote_start_time=data.get('vote_start_time', datetime.utcnow()),
             vote_duration_hours=data.get('vote_duration_hours', 0),
         )
+
+        # create a onchain hash
+        new_proposal.set_onchain_hash()
 
         save_changes(new_proposal)
 
@@ -370,6 +374,9 @@ def update_proposal(id, data, user):
         proposal.category_id = category_id
 
         proposal.estimated_hours = data.get('estimated_hours', 0)
+
+        # update the onchain hash
+        proposal.set_onchain_hash()
 
         db.session.commit()
 

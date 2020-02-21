@@ -7,6 +7,7 @@ from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy import select, func, and_
 from app.main.util.proposal import ProposalStatus, ProposalLogEvent
 from datetime import datetime
+from app.main.util.common import md5
 
 
 class Category(BaseModelMixin, TimestampMixin, db.Model):
@@ -141,6 +142,9 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     # 预计工时
     estimated_hours = db.Column(db.Integer, nullable=True)
 
+    # 投票开始时间, 默认是创建后马上开始
+    vote_start_time = db.Column(db.DateTime, default=datetime.utcnow)
+
     # 投票最大持续时间
     vote_duration_hours = db.Column(
         db.Integer, default=7200)  # vote default duration: 7200min=5day
@@ -163,6 +167,13 @@ class Proposal(BaseModelMixin, TimestampMixin, db.Model):
     # @property
     # def comments_count(self):
     #     return Comment.query.with_parent(self).filter_by(is_delete=0).count()
+
+    def set_onchain_hash(self):
+        self.onchain_hash = md5(
+            str([
+                self.id, self.title, self.summary, self.status,
+                self.creator_id, self.created
+            ]))
 
     @property
     def status_key(self):
