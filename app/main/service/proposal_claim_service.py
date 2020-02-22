@@ -70,6 +70,14 @@ def claim_proposal(data, user_id):
     )
 
     save_changes(new_claim_proposal)
+
+    # create proposal log, proposal_claim_claiming
+    create_proposal_log(proposal_id=new_claim_proposal.proposal_id,
+                        event_key='proposal_claim_claiming',
+                        op_user_id=user_id,
+                        creator_id=user_id,
+                        to_value=user_id)
+
     response_object = {
         'status': 'success',
         'message': 'Successfully claim a proposal.',
@@ -77,10 +85,12 @@ def claim_proposal(data, user_id):
             'claim_id': new_claim_proposal.claim_id,
         }
     }
+
     return response_object, 201
 
 
 # cancel claim proposal
+# only claimer can cancel his proposal claim
 def cancel_claim_proposal(data, user_id):
     # check post data.proposal_id required
     proposal_id = data.get('proposal_id')
@@ -121,6 +131,13 @@ def cancel_claim_proposal(data, user_id):
 
         proposal_claim.status = ProposalClaimStatus['cancel'].value
         db.session.commit()
+
+        # create proposal log, proposal_claim_cancel
+        create_proposal_log(proposal_id=proposal_claim.proposal_id,
+                            event_key='proposal_claim_cancel',
+                            op_user_id=user_id,
+                            creator_id=user_id,
+                            to_value=proposal_claim.claimer.id)
 
         response_object = {
             'status': 'success',
@@ -171,7 +188,7 @@ def verify_claim(claim_id, user_id, approve=True):
     proposal_claim.status = ProposalClaimStatus[status_key].value
     db.session.commit()
 
-    # create proposal log
+    # create proposal log, proposal_claim_passed/proposal_claim_fail
     create_proposal_log(proposal_id=proposal_claim.proposal_id,
                         event_key=log_event_key,
                         op_user_id=user_id,

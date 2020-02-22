@@ -23,13 +23,23 @@ class ProposalStatus(Enum):
 @unique
 class ProposalLogEvent(Enum):
 
+    # 提案基础信息
     create = 1 # 创建提案
     update_info = 2 # 更新提案信息
     update_status = 3 # 更新提案状态
+
+    # 进度更新
+    # TODO: 只有admin, creator, claim pass 的人可以发布更新
     update_progress = 4 # 更新项目进度
+
+    # 提案链上投票
     onchain_success = 5 # 提案上链成功
     onchain_fail = 6 # 提案上链失败
     vote = 7 # 给提案投票
     vote_result = 8 # 投票结果产生
-    proposal_claim_passed = 9 # 提案申领审核通过
-    proposal_claim_fail = 10 # 提案申领审核失败 
+    
+    # 提案申领
+    proposal_claim_claiming = 9 # 提案申领
+    proposal_claim_cancel = 10 # 取消提案申领
+    proposal_claim_passed = 11 # 提案申领审核通过
+    proposal_claim_fail = 12 # 提案申领审核失败
