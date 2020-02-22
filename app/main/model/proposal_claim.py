@@ -34,3 +34,8 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
 
     # 收款地址
     payment_address = db.Column(db.String(255), nullable=True)
+
+    @property
+    def status_key(self):
+        if self.status:
+            return ProposalClaimStatus(self.status).name

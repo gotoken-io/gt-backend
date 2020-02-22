@@ -31,3 +31,5 @@ class ProposalLogEvent(Enum):
     onchain_fail = 6 # 提案上链失败
     vote = 7 # 给提案投票
     vote_result = 8 # 投票结果产生
+    proposal_claim_passed = 9 # 提案申领审核通过
+    proposal_claim_fail = 10 # 提案申领审核失败 

@@ -6,6 +6,7 @@ from app.main.config import Config
 from sqlalchemy import desc, asc
 from app.main.util.proposal import ProposalStatus, ProposalLogEvent
 from app.main.util.proposal_claim import ProposalClaimStatus
+from app.main.service.proposal_service import create_proposal_log
 from datetime import datetime
 
 
@@ -131,6 +132,57 @@ def cancel_claim_proposal(data, user_id):
         print(e)
         response_object = {'status': 'fail', 'message': str(e)}
         return response_object, 401
+
+
+# admin approve or fail claim
+def verify_claim(claim_id, user_id, approve=True):
+    proposal_claim = ProposalClaim.query.filter_by(claim_id=claim_id).first()
+
+    if not proposal_claim:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal claim is not exists.',
+        }
+        return response_object, 200
+
+    # check user
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        response_object = {
+            'status': 'fail',
+            'message': 'user is not exists.',
+        }
+        return response_object, 200
+
+    if not user.admin:
+        response_object = {
+            'status': 'fail',
+            'message': 'permission deny.',
+        }
+        return response_object, 200
+
+    status_key = 'passed'
+    log_event_key = 'proposal_claim_passed'
+
+    if not approve:
+        status_key = 'fail'
+        log_event_key = 'proposal_claim_fail'
+
+    proposal_claim.status = ProposalClaimStatus[status_key].value
+    db.session.commit()
+
+    # create proposal log
+    create_proposal_log(proposal_id=proposal_claim.proposal_id,
+                        event_key=log_event_key,
+                        op_user_id=user_id,
+                        creator_id=user_id,
+                        to_value=proposal_claim.claimer.id)
+
+    response_object = {
+        'status': 'success',
+        'message': 'proposal claim status set {} success.'.format(status_key),
+    }
+    return response_object, 200
 
 
 def get_user_claims(user_id):

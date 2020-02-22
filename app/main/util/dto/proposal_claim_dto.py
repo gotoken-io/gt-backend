@@ -5,10 +5,12 @@ api = Namespace('proposal_claim', description='Proposal claim')
 
 proposal_claim = api.model(
     'proposal_claim', {
-        'id':
+        'claim_id':
         fields.String(description='claim id'),
         'proposal_id':
         fields.String(description='proposal id'),
+        'status_key':
+        fields.String(description='proposal claim status key'),
         'user_id':
         fields.String(description='claimer user id'),
         'budget_amount':
