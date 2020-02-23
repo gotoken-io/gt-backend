@@ -39,3 +39,7 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
     def status_key(self):
         if self.status:
             return ProposalClaimStatus(self.status).name
+
+    # @property
+    # def creator(self):
+    #     return User.query.filter_by(id=self.creator_id).first()

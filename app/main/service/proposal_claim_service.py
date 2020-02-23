@@ -50,43 +50,72 @@ def claim_proposal(data, user_id):
         return response_object, 200
 
     # check user claim this proposal before?
-    for claim in user.claims:
-        if claim.proposal_id == proposal_id:
-            response_object = {
-                'status': 'fail',
-                'message': 'user already claim this proposal',
-            }
-            return response_object, 200
+    proposal_claim = ProposalClaim.query.filter_by(proposal_id=proposal_id,
+                                                   user_id=user_id).first()
+    if proposal_claim:
+        # if proposal_claim.status_key == 'claiming':
+        #     response_object = {
+        #         'status': 'fail',
+        #         'message': 'user already claim this proposal',
+        #     }
+        #     return response_object, 200
 
-    new_claim_proposal = ProposalClaim(
-        user_id=user_id,
-        creator_id=user_id,
-        proposal_id=proposal.id,
-        status=ProposalClaimStatus['claiming'].value,
-        reason=reason,
-        budget_amount=data.get('budget_amount'),
-        budget_currency_id=data.get('budget_currency_id'),
-        payment_address=data.get('payment_address'),
-    )
+        # if proposal_claim.status_key == 'cancel':
 
-    save_changes(new_claim_proposal)
+        # claim same proposal again.
+        proposal_claim.status = ProposalClaimStatus['claiming'].value
+        proposal_claim.reason = reason
 
-    # create proposal log, proposal_claim_claiming
-    create_proposal_log(proposal_id=new_claim_proposal.proposal_id,
-                        event_key='proposal_claim_claiming',
-                        op_user_id=user_id,
-                        creator_id=user_id,
-                        to_value=user_id)
+        db.session.commit()
 
-    response_object = {
-        'status': 'success',
-        'message': 'Successfully claim a proposal.',
-        'data': {
-            'claim_id': new_claim_proposal.claim_id,
+        # create proposal log, proposal_claim_claiming
+        create_proposal_log(proposal_id=proposal_id,
+                            event_key='proposal_claim_claiming',
+                            op_user_id=user_id,
+                            creator_id=user_id,
+                            to_value=user_id)
+
+        response_object = {
+            'status': 'success',
+            'message': 'user claim this proposal again.',
         }
-    }
 
-    return response_object, 201
+        return response_object, 200
+
+    try:
+        new_claim_proposal = ProposalClaim(
+            user_id=user_id,
+            creator_id=user_id,
+            proposal_id=proposal.id,
+            status=ProposalClaimStatus['claiming'].value,
+            reason=reason,
+            budget_amount=data.get('budget_amount'),
+            budget_currency_id=data.get('budget_currency_id'),
+            payment_address=data.get('payment_address'),
+        )
+
+        save_changes(new_claim_proposal)
+
+        # create proposal log, proposal_claim_claiming
+        create_proposal_log(proposal_id=new_claim_proposal.proposal_id,
+                            event_key='proposal_claim_claiming',
+                            op_user_id=user_id,
+                            creator_id=user_id,
+                            to_value=user_id)
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully claim a proposal.',
+            'data': {
+                'claim_id': new_claim_proposal.claim_id,
+            }
+        }
+
+        return response_object, 201
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 200
 
 
 # cancel claim proposal
@@ -148,7 +177,7 @@ def cancel_claim_proposal(data, user_id):
     except Exception as e:
         print(e)
         response_object = {'status': 'fail', 'message': str(e)}
-        return response_object, 401
+        return response_object, 200
 
 
 # admin approve or fail claim
