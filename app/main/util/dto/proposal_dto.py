@@ -57,6 +57,8 @@ proposal_category = api.model(
         fields.Integer(description='related proposal count'),
     })
 
+creator_fields = fields.Nested(_user_get)
+
 # 用户创建的 proposal
 proposal_created_item = api.model(
     'proposal',
@@ -80,11 +82,12 @@ proposal_created_item = api.model(
         'estimated_hours': fields.Integer(description='estimated work hours'),
         'vote_duration_hours':
         fields.Integer(description='vote duration hours'),
+        'creator': creator_fields,
+        'comments_count':
+        fields.Integer(description='proposal comments count'),
     })
 
 proposals_created_fields = fields.List(fields.Nested(proposal_created_item))
-
-creator_fields = fields.Nested(_user_get)
 
 proposal = api.model(
     'proposal',

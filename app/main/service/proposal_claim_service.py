@@ -231,18 +231,22 @@ def verify_claim(claim_id, user_id, approve=True):
     return response_object, 200
 
 
-def get_user_claims(user_id):
+def get_user_claims_username(username, page):
 
     # check user
-    user = User.query.filter_by(id=user_id).first()
+    user = User.query.filter_by(username=username).first()
     if not user:
-        response_object = {
-            'status': 'fail',
-            'message': 'user is not exists.',
-        }
-        return response_object, 200
+        print('user is not exists.')
+        # response_object = {
+        #     'status': 'fail',
+        #     'message': 'user is not exists.',
+        # }
+        return None
 
-    user_claims = ProposalClaim.query.filter_by(user_id=user_id).all()
+    user_claims = ProposalClaim.query.filter_by(
+        user_id=user.id, is_delete=0).paginate(page, Config.PROPOSAL_PER_PAGE,
+                                               False)
+
     return user_claims
 
 

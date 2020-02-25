@@ -4,7 +4,7 @@ from flask_restplus import Resource
 from app.main.util.decorator import admin_token_required, token_required
 from app.main.service.user_service import get_a_user_by_auth_token
 
-from app.main.util.dto.proposal_claim_dto import proposal_claim, api
+from app.main.util.dto.proposal_claim_dto import proposal_claim, api, page_of_proposal_claim
 import app.main.service.proposal_claim_service as proposal_claim_service
 
 api_proposal_claim = api
@@ -43,15 +43,17 @@ class ProposalClaimAPI(Resource):
                 data=post_data, user_id=user.id)
 
 
-@api_proposal_claim.route('/user/<user_id>')
+@api_proposal_claim.route('/user/<username>')
 class UserProposalClaimAPI(Resource):
     """
         User Proposals Claim Resource
     """
     @api_proposal_claim.doc('get a user claim proposals')
-    @api_proposal_claim.marshal_list_with(proposal_claim, envelope='data')
-    def get(self, user_id):
-        return proposal_claim_service.get_user_claims(user_id=user_id)
+    @api_proposal_claim.marshal_with(page_of_proposal_claim, envelope='data')
+    def get(self, username):
+        page = int(request.args.get("page", 1))
+        return proposal_claim_service.get_user_claims_username(
+            username=username, page=page)
 
 
 @api_proposal_claim.route('/proposal/<proposal_id>')
