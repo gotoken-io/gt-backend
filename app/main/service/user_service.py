@@ -81,8 +81,18 @@ def get_all_users():
     return User.query.all()
 
 
-def get_a_user(id):
+def get_a_user_by_id(id):
     user = User.query.filter(User.id == id).first()
+    # user created proposals
+    # created_proposals = Proposal.query.filter_by(creator_id=id, is_delete=0).paginate(
+    #     page, Config.PROPOSAL_PER_PAGE, False)
+
+    # user.proposals_created = created_proposals
+    return user
+
+
+def get_a_user_by_username(username):
+    user = User.query.filter(User.username == username).first()
     # user created proposals
     # created_proposals = Proposal.query.filter_by(creator_id=id, is_delete=0).paginate(
     #     page, Config.PROPOSAL_PER_PAGE, False)

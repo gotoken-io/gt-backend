@@ -17,7 +17,7 @@ page_of_proposals = proposal_dto.page_of_proposals
 
 save_new_user = user_service.save_new_user
 get_all_users = user_service.get_all_users
-get_a_user = user_service.get_a_user
+# get_a_user = user_service.get_a_user
 get_a_user_created_proposal = user_service.get_a_user_created_proposal
 get_a_user_by_auth_token = user_service.get_a_user_by_auth_token
 update_user_avatar = user_service.update_user_avatar
@@ -46,15 +46,15 @@ class UserList(Resource):
         return save_new_user(data=data)
 
 
-@api.route('/<id>')
-@api.param('id', 'The User identifier')
+@api.route('/<username>')
+@api.param('username', 'Username')
 @api.response(404, 'User not found.')
 class User(Resource):
     @api.doc('get a user')
     @api.marshal_with(user_get, envelope='data')
-    def get(self, id):
-        """get a user given its identifier"""
-        user = get_a_user(id)
+    def get(self, username):
+        """get a user by username"""
+        user = user_service.get_a_user_by_username(username)
         if not user:
             api.abort(404)
         else:
@@ -62,15 +62,15 @@ class User(Resource):
             return user
 
 
-@api.route('/<id>/proposal')
-@api.param('id', 'The User identifier')
+@api.route('/<username>/proposal')
+@api.param('username', 'Username')
 @api.response(404, 'User not found.')
 class User(Resource):
     @api.doc('get a user proposals')
     @api.marshal_with(page_of_proposals, envelope='data')
-    def get(self, id):
+    def get(self, username):
         """get a user proposals"""
-        user = get_a_user(id)
+        user = user_service.get_a_user_by_username(username)
         if not user:
             api.abort(404)
         else:
@@ -78,7 +78,7 @@ class User(Resource):
             p_type = request.args.get("p_type", "created")
             page = int(request.args.get("page", 1))
             if p_type == "created":
-                proposals = get_a_user_created_proposal(id, page)
+                proposals = get_a_user_created_proposal(id=user.id, page=page)
             return proposals
 
 
