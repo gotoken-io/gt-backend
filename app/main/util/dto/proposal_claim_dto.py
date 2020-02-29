@@ -77,6 +77,8 @@ proposal_claim = api.model(
         fields.DateTime(description='created timestamp'),
         'reason':
         fields.String(required=True, description='proposal claim reason'),
+        'result':
+        fields.String(required=True, description='proposal claim result'),
         'payment_address':
         fields.String(required=True,
                       description='claimer use to get token reward address'),
