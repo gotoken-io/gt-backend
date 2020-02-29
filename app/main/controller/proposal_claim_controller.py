@@ -69,6 +69,46 @@ class ProposalClaimsAPI(Resource):
             proposal_id=proposal_id)
 
 
+@api_proposal_claim.route('/result')
+class SubmitProposalClaimAPI(Resource):
+    """
+        Submit Proposals Claim result
+    """
+    @api_proposal_claim.doc('submit the proposal claim result')
+    @token_required
+    def post(self):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        return proposal_claim_service.submit_claim_result(data=post_data,
+                                                          user_id=user.id)
+
+
+@api_proposal_claim.route('/verify/result')
+class VerifyProposalClaimResultAPI(Resource):
+    """
+        Verify Proposals Claim Result
+    """
+    @api_proposal_claim.doc('verify a proposal claim result')
+    @admin_token_required
+    def put(self):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        claim_id = post_data.get('claim_id')
+        approve = post_data.get('approve', True)
+
+        return proposal_claim_service.verify_claim_result(claim_id=claim_id,
+                                                          user_id=user.id,
+                                                          approve=approve)
+
+
 @api_proposal_claim.route('/verify')
 class VerifyProposalClaimAPI(Resource):
     """

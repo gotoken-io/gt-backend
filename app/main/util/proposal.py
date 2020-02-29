@@ -43,3 +43,7 @@ class ProposalLogEvent(Enum):
     proposal_claim_cancel = 10 # 取消提案申领
     proposal_claim_passed = 11 # 提案申领审核通过
     proposal_claim_fail = 12 # 提案申领审核失败
+    proposal_claim_result_submit = 13 # 申领结果提交
+    proposal_claim_result_approve = 14 # 申领结果通过
+    proposal_claim_result_fail = 15 # 申领结果不通过
+

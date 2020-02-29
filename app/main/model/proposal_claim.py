@@ -21,6 +21,9 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
     # 200 申领通过
     # 300 申领不通过
     # 400 撤销申领
+    # 500 提交结果中
+    # 600 结果通过
+    # 700 结果不通过
     status = db.Column(db.Integer,
                        default=ProposalClaimStatus['claiming'].value)
 
@@ -34,6 +37,9 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
 
     # 收款地址
     payment_address = db.Column(db.String(255), nullable=True)
+
+    # 完成结果
+    result = db.Column(db.Text, nullable=True)
 
     @property
     def status_key(self):

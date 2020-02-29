@@ -222,7 +222,119 @@ def verify_claim(claim_id, user_id, approve=True):
                         event_key=log_event_key,
                         op_user_id=user_id,
                         creator_id=user_id,
-                        to_value=proposal_claim.claimer.id)
+                        to_value=proposal_claim.claimer.username)
+
+    response_object = {
+        'status': 'success',
+        'message': 'proposal claim status set {} success.'.format(status_key),
+    }
+    return response_object, 200
+
+
+# claimer submit result
+def submit_claim_result(data, user_id):
+    claim_id = data.get('claim_id')
+    if not claim_id:
+        response_object = {
+            'status': 'fail',
+            'message': 'claim_id is required.',
+        }
+        return response_object, 200
+
+    proposal_claim = ProposalClaim.query.filter_by(claim_id=claim_id).first()
+
+    if not proposal_claim:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal claim is not exists.',
+        }
+        return response_object, 200
+
+    # check user
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        response_object = {
+            'status': 'fail',
+            'message': 'user is not exists.',
+        }
+        return response_object, 200
+
+    # check user_id is claimer.id
+    if user_id != proposal_claim.claimer.id:
+        response_object = {
+            'status': 'fail',
+            'message': 'user is not claimer.',
+        }
+        return response_object, 200
+
+    result = data.get('result')
+    if not result:
+        response_object = {
+            'status': 'fail',
+            'message': 'result is required.',
+        }
+        return response_object, 200
+
+    proposal_claim.result = result
+    proposal_claim.status = ProposalClaimStatus['submit_result'].value
+    db.session.commit()
+
+    # create proposal log, proposal_claim_passed/proposal_claim_fail
+    create_proposal_log(proposal_id=proposal_claim.proposal_id,
+                        event_key='proposal_claim_result_submit',
+                        op_user_id=user_id,
+                        creator_id=user_id)
+
+    response_object = {
+        'status': 'success',
+        'message': 'proposal claim result submit success',
+    }
+
+    return response_object, 200
+
+
+def verify_claim_result(claim_id, user_id, approve=True):
+    proposal_claim = ProposalClaim.query.filter_by(claim_id=claim_id).first()
+
+    if not proposal_claim:
+        response_object = {
+            'status': 'fail',
+            'message': 'proposal claim is not exists.',
+        }
+        return response_object, 200
+
+    # check user
+    user = User.query.filter_by(id=user_id).first()
+    if not user:
+        response_object = {
+            'status': 'fail',
+            'message': 'user is not exists.',
+        }
+        return response_object, 200
+
+    if not user.admin:
+        response_object = {
+            'status': 'fail',
+            'message': 'permission deny.',
+        }
+        return response_object, 200
+
+    status_key = 'result_approve'
+    log_event_key = 'proposal_claim_result_approve'
+
+    if not approve:
+        status_key = 'result_fail'
+        log_event_key = 'proposal_claim_result_fail'
+
+    proposal_claim.status = ProposalClaimStatus[status_key].value
+    db.session.commit()
+
+    # create proposal log, verify proposal claim result
+    create_proposal_log(proposal_id=proposal_claim.proposal_id,
+                        event_key=log_event_key,
+                        op_user_id=user_id,
+                        creator_id=user_id,
+                        to_value=proposal_claim.claimer.username)
 
     response_object = {
         'status': 'success',
