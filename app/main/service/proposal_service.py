@@ -171,7 +171,7 @@ def save_new_proposal_zone(data):
 
             new_proposal_zone = ProposalZone(
                 name=data['name'],
-                token=data['token'],
+                # token=data['token'],
                 title=data['title'],
                 summary=data['summary'],
                 detail=data['detail'],
