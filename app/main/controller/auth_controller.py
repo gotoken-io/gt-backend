@@ -7,6 +7,7 @@ import app.main.util.dto.auth_dto as auth_dto
 
 api = auth_dto.api
 user_auth = auth_dto.user_auth
+address_auth = auth_dto.address_auth
 
 
 @api.route('/login')
@@ -28,6 +29,26 @@ class UserLogin(Resource):
         return Auth.get_logged_in_user(request)
 
 
+@api.route('/address')
+class AddressLogin(Resource):
+    """
+        Address Login Resource
+    """
+    @api.doc('address login')
+    @api.expect(address_auth, validate=True)
+    def post(self):
+        # get the post data
+        post_data = request.json
+        zoneId = 2  # Only go token can use login
+        return Auth.login_address(data=post_data, zoneId=zoneId)
+
+    @api.doc('Get Address nonce')
+    def get(self):
+        address = request.args.get("address")
+        # get auth token
+        return Auth.get_nonce(address=address)
+
+
 @api.route('/logout')
 class LogoutAPI(Resource):
     """
@@ -36,5 +57,5 @@ class LogoutAPI(Resource):
     @api.doc('logout a user')
     @token_required
     def post(self):
-        
+
         return Auth.logout_user(request)
