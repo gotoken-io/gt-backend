@@ -19,6 +19,8 @@ class Wallet(BaseModelMixin, TimestampMixin, db.Model):
                             db.ForeignKey('currency.id'),
                             primary_key=True)
     address = db.Column(db.String(255), nullable=True)  # wallet address
+    # Nonce code for security checks
+    nonce = db.Column(db.String(100), nullable=True)
 
     @staticmethod
     def getNonce(wallet):

@@ -60,6 +60,10 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
 
     vote_addr_weight_json = db.Column(db.Text)
 
+    # 合约地址
+    multiSigAddress = db.Column(db.String(100))
+    voteAddress = db.Column(db.String(100))
+
     # 该专区下的提案
     proposals = db.relationship('Proposal',
                                 foreign_keys='Proposal.zone_id',
