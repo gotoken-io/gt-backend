@@ -237,6 +237,7 @@ def add_user_wallet_addr(data):
             return validate_res[0], 200
 
         wallet = Wallet.query.filter_by(zone_id=zone_id,
+                                        user_id=user_id,
                                         currency_id=currency_id).first()
 
         # check exist same record
@@ -274,17 +275,16 @@ def update_user_wallet_addr(data):
     address = data.get('address', None)
 
     try:
-
         validate_res = validate_user_wallet_data(data)
         if validate_res[1] == False:
             return validate_res[0], 200
 
         wallet = Wallet.query.filter_by(zone_id=zone_id,
+                                        user_id=user_id,
                                         currency_id=currency_id).first()
 
         # check exist wallet
         if wallet:
-
             # change address
             wallet.address = address
             db.session.commit()

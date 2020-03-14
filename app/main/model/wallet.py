@@ -23,15 +23,6 @@ class Wallet(BaseModelMixin, TimestampMixin, db.Model):
     nonce = db.Column(db.String(100), nullable=True)
 
     @staticmethod
-    def getNonce(wallet):
-        """
-        Gives a nonce for a wallet
-        :param wallet:
-        :return: string
-        """
-        return "THIS_IS_FIX_NONCE"
-
-    @staticmethod
     def recover_address(data: str, signature: str) -> str:
         message = encode_defunct(text=data)
         return w3.eth.account.recover_message(message, signature=signature)
@@ -41,9 +32,12 @@ class Wallet(BaseModelMixin, TimestampMixin, db.Model):
         """
         Check the nonce validity
         :param wallet:
-        :return: string
+        :return: boolean
         """
-        result = Wallet.recover_address(Wallet.getNonce(wallet), signature)
-        print(wallet.address, result)
 
+        if wallet.nonce == None:
+            return False
+
+        result = Wallet.recover_address(wallet.nonce, signature)
+        print(wallet.nonce, wallet.address, result)
         return result == wallet.address

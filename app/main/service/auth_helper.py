@@ -2,6 +2,8 @@ from app.main.model.user import User
 from ..service.blacklist_service import save_token
 from ..service.util.uuid import version_uuid
 from app.main.model.wallet import Wallet
+from app.main import db
+from secrets import token_hex
 
 
 class Auth:
@@ -57,7 +59,11 @@ class Auth:
                 }
                 return response_object, 404
 
-            if not Wallet.checkNonce(wallet, data.get("signature")):
+            checkNonce = Wallet.checkNonce(wallet, data.get("signature"))
+            # Invalidate the nonce
+            wallet.nonce = None
+            db.session.commit()
+            if checkNonce:
                 response_object = {
                     'status': 'fail',
                     'message': 'Wrong Signature'
@@ -104,9 +110,11 @@ class Auth:
                 }
                 return response_object, 404
 
+            wallet.nonce = str(token_hex(32))
+            db.session.commit()
             response_object = {
                 'status': 'success',
-                'nonce': Wallet.getNonce(address),
+                'nonce':  wallet.nonce,
                 'userId': wallet.user_id
             }
             return response_object, 200
