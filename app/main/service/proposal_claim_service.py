@@ -452,6 +452,7 @@ def add_team(data, owner_id):
 
 def delete_team(id, user):
     team = ProposalClaimTeam.query.filter_by(id=id).first()
+
     if not team:
         response_object = {
             'status': 'fail',
@@ -479,7 +480,7 @@ def delete_team(id, user):
         team.is_delete = 1
         # 批量'删除'该条评论下关联的所有回复
         db.session.query(ProposalClaimTeam).filter(
-            ProposalClaimTeam.parent_id == ProposalClaimTeam.id).update({ProposalClaimTeam.is_delete: 1})
+            ProposalClaimTeam.id == team.id).update({ProposalClaimTeam.is_delete: 1})
         db.session.commit()
 
         response_object = {

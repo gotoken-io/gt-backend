@@ -148,8 +148,11 @@ class ProposalClaimAPI(Resource):
         if user:
             return proposal_claim_service.add_team(data=post_data,
                                                    owner_id=user.id)
-
+    """
+        Remove from your team
+    """
     @api.doc('delete team_member')
+    @token_required
     def delete(self):
         id = request.json['id']
         # get auth token

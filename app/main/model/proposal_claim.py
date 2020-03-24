@@ -55,7 +55,7 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
 
     @property
     def team(self):
-        return ProposalClaimTeam.query.filter_by(team_id=self.id)
+        return ProposalClaimTeam.query.filter_by(team_id=self.id, is_delete=0)
 
     # @property
     # def creator(self):
