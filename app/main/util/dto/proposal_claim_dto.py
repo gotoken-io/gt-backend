@@ -16,6 +16,22 @@ _user_dto = api.model(
 
 user_fields = fields.Nested(_user_dto)
 
+proposal_claim_team = api.model(
+    'proposal_claim_team',
+    {
+        'id':
+        fields.String(description='Primary Key'),
+        'team_id':
+        fields.String(description='Proposal Claim ID'),
+        'user_id':
+        fields.String(description='claimer user id'),
+        'responsibility':
+        fields.String(description='Users withing the team responsibility'),
+        "staff":
+            user_fields
+    })
+
+
 pagination = api.model(
     'A page of results', {
         'page':
@@ -67,6 +83,8 @@ proposal_claim = api.model(
         fields.String(description='claimer user id'),
         'claimer':
         user_fields,
+        'team':
+        fields.List(fields.Nested(proposal_claim_team)),
         # 'creator':
         # user_fields,
         'budget_amount':
@@ -77,6 +95,8 @@ proposal_claim = api.model(
         fields.DateTime(description='created timestamp'),
         'reason':
         fields.String(required=True, description='proposal claim reason'),
+        'plan':
+        fields.String(required=True, description='proposal claim plan'),
         'result':
         fields.String(required=True, description='proposal claim result'),
         'payment_address':

@@ -1,5 +1,6 @@
 from enum import Enum, unique
 
+
 @unique
 class ProposalStatus(Enum):
     # 100 待投票: 创建后第一个状态,此时还未上链
@@ -9,7 +10,7 @@ class ProposalStatus(Enum):
     # 以下是 status=300 后才会有的状态
     # 500 进行中: 由(专区)管理员修改到此状态 -> 600, 800
     # 600 验收中: 由(专区)管理员修改到此状态，此时需要进行多签投票,决定提案是否验收 -> 700, 800
-    # 700 已完成: 如果投票通过, 提案状态自动改变(投票结束时达成条件) end 
+    # 700 已完成: 如果投票通过, 提案状态自动改变(投票结束时达成条件) end
     # 800 失败: 验收投票不通过, 提案状态自动改变(投票结束时达成条件); 也可能是申领人放弃 end
     wait_to_vote = 100
     set_up_voting = 200
@@ -20,30 +21,30 @@ class ProposalStatus(Enum):
     success = 700
     fail = 800
 
+
 @unique
 class ProposalLogEvent(Enum):
 
     # 提案基础信息
-    create = 1 # 创建提案
-    update_info = 2 # 更新提案信息
-    update_status = 3 # 更新提案状态
+    create = 1  # 创建提案
+    update_info = 2  # 更新提案信息
+    update_status = 3  # 更新提案状态
 
     # 进度更新
     # TODO: 只有admin, creator, claim pass 的人可以发布更新
-    update_progress = 4 # 更新项目进度
+    update_progress = 4  # 更新项目进度
 
     # 提案链上投票
-    onchain_success = 5 # 提案上链成功
-    onchain_fail = 6 # 提案上链失败
-    vote = 7 # 给提案投票
-    vote_result = 8 # 投票结果产生
-    
-    # 提案申领
-    proposal_claim_claiming = 9 # 提案申领
-    proposal_claim_cancel = 10 # 取消提案申领
-    proposal_claim_passed = 11 # 提案申领审核通过
-    proposal_claim_fail = 12 # 提案申领审核失败
-    proposal_claim_result_submit = 13 # 申领结果提交
-    proposal_claim_result_approve = 14 # 申领结果通过
-    proposal_claim_result_fail = 15 # 申领结果不通过
+    onchain_success = 5  # 提案上链成功
+    onchain_fail = 6  # 提案上链失败
+    vote = 7  # 给提案投票
+    vote_result = 8  # 投票结果产生
 
+    # 提案申领
+    proposal_claim_claiming = 9  # 提案申领
+    proposal_claim_cancel = 10  # 取消提案申领
+    proposal_claim_passed = 11  # 提案申领审核通过
+    proposal_claim_fail = 12  # 提案申领审核失败
+    proposal_claim_result_submit = 13  # 申领结果提交
+    proposal_claim_result_approve = 14  # 申领结果通过
+    proposal_claim_result_fail = 15  # 申领结果不通过

@@ -1,6 +1,6 @@
 import uuid
 from app.main import db
-from app.main.model import User, Proposal, Currency, ProposalLog, ProposalClaim
+from app.main.model import User, Proposal, Currency, ProposalLog, ProposalClaim, ProposalClaimTeam
 from app.main.service.util import save_changes
 from app.main.config import Config
 from sqlalchemy import desc, asc
@@ -9,8 +9,9 @@ from app.main.util.proposal_claim import ProposalClaimStatus
 from app.main.service.proposal_service import create_proposal_log
 from datetime import datetime
 
-
 # claim proposal
+
+
 def claim_proposal(data, user_id):
 
     # check post data.proposal_id required
@@ -36,7 +37,7 @@ def claim_proposal(data, user_id):
     if not proposal:
         response_object = {
             'status': 'fail',
-            'message': 'proposal is not exists.',
+            'message': 'proposal does`t exists.',
         }
         return response_object, 200
 
@@ -45,10 +46,11 @@ def claim_proposal(data, user_id):
     if not user:
         response_object = {
             'status': 'fail',
-            'message': 'user is not exists.',
+            'message': 'user does`t exists.',
         }
         return response_object, 200
 
+    print(proposal_id, user_id)
     # check user claim this proposal before?
     proposal_claim = ProposalClaim.query.filter_by(proposal_id=proposal_id,
                                                    user_id=user_id).first()
@@ -135,7 +137,7 @@ def cancel_claim_proposal(data, user_id):
     if not proposal:
         response_object = {
             'status': 'fail',
-            'message': 'proposal is not exists.',
+            'message': 'proposal does`t exists.',
         }
         return response_object, 200
 
@@ -144,7 +146,7 @@ def cancel_claim_proposal(data, user_id):
     if not user:
         response_object = {
             'status': 'fail',
-            'message': 'user is not exists.',
+            'message': 'user does`t exists.',
         }
         return response_object, 200
 
@@ -154,7 +156,7 @@ def cancel_claim_proposal(data, user_id):
         if not proposal_claim:
             response_object = {
                 'status': 'fail',
-                'message': 'proposal claim record is not exists.',
+                'message': 'proposal claim record does`t exists.',
             }
             return response_object, 200
 
@@ -187,7 +189,7 @@ def verify_claim(claim_id, user_id, approve=True):
     if not proposal_claim:
         response_object = {
             'status': 'fail',
-            'message': 'proposal claim is not exists.',
+            'message': 'proposal claim does`t exists.',
         }
         return response_object, 200
 
@@ -196,7 +198,7 @@ def verify_claim(claim_id, user_id, approve=True):
     if not user:
         response_object = {
             'status': 'fail',
-            'message': 'user is not exists.',
+            'message': 'user does`t exists.',
         }
         return response_object, 200
 
@@ -247,7 +249,7 @@ def submit_claim_result(data, user_id):
     if not proposal_claim:
         response_object = {
             'status': 'fail',
-            'message': 'proposal claim is not exists.',
+            'message': 'proposal claim does`t exists.',
         }
         return response_object, 200
 
@@ -284,7 +286,7 @@ def verify_claim_result(claim_id, user_id, approve=True):
     if not proposal_claim:
         response_object = {
             'status': 'fail',
-            'message': 'proposal claim is not exists.',
+            'message': 'proposal claim does`t exists.',
         }
         return response_object, 200
 
@@ -293,7 +295,7 @@ def verify_claim_result(claim_id, user_id, approve=True):
     if not user:
         response_object = {
             'status': 'fail',
-            'message': 'user is not exists.',
+            'message': 'user does`t exists.',
         }
         return response_object, 200
 
@@ -333,10 +335,10 @@ def get_user_claims_username(username, page):
     # check user
     user = User.query.filter_by(username=username).first()
     if not user:
-        print('user is not exists.')
+        print('user does`t exists.')
         # response_object = {
         #     'status': 'fail',
-        #     'message': 'user is not exists.',
+        #     'message': 'user does`t exists.',
         # }
         return None
 
@@ -353,10 +355,140 @@ def get_proposal_claims(proposal_id):
     if not proposal:
         response_object = {
             'status': 'fail',
-            'message': 'proposal is not exists.',
+            'message': 'proposal does`t exists.',
         }
         return response_object, 200
 
     proposal_claims = ProposalClaim.query.filter_by(
         proposal_id=proposal_id).all()
     return proposal_claims
+
+
+# claim proposal
+def add_team(data, owner_id):
+
+    # check post data.proposal_id required
+    claim_id = data.get('claim_id')
+    if not claim_id:
+        response_object = {
+            'status': 'fail',
+            'message': 'claim_id is required.',
+        }
+        return response_object, 200
+
+    # check post data.reason required
+    responsibility = data.get('responsibility')
+    if not responsibility:
+        response_object = {
+            'status': 'fail',
+            'message': 'responsibility is required.',
+        }
+        return response_object, 200
+
+    # check post data.reason required
+    user_id = data.get('user_id')
+    if not user_id:
+        response_object = {
+            'status': 'fail',
+            'message': 'user_id is required.',
+        }
+        return response_object, 200
+    # check proposal
+    proposalClaim = ProposalClaim.query.filter_by(
+        claim_id=claim_id).first()
+
+    if not proposalClaim:
+        response_object = {
+            'status': 'fail',
+            'message': 'user_id is required.',
+        }
+        return response_object, 200
+
+    # Check is the owner
+    if proposalClaim.user_id != owner_id:
+        response_object = {
+            'status': 'fail',
+            'message': 'Only owner is allow to add members.',
+        }
+        return response_object, 200
+
+    # check user claim this proposal before?
+    print(proposalClaim)
+    duplicated = ProposalClaimTeam.query.filter_by(
+        team_id=proposalClaim.id, user_id=user_id).first()
+
+    if duplicated:
+        team = ProposalClaimTeam.query.filter_by(
+            team_id=proposalClaim.id, is_delete=0)
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully claim a proposal.',
+        }
+        return response_object, 200
+
+    try:
+        new_proposal_claim_team = ProposalClaimTeam(
+            user_id=user_id,
+            team_id=proposalClaim.id,
+            responsibility=responsibility,
+        )
+
+        save_changes(new_proposal_claim_team)
+        team = ProposalClaimTeam.query.filter_by(
+            team_id=proposalClaim.id, is_delete=0)
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully claim a proposal.',
+        }
+
+        return response_object, 201
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 200
+
+
+def delete_team(id, user):
+    team = ProposalClaimTeam.query.filter_by(id=id).first()
+    if not team:
+        response_object = {
+            'status': 'fail',
+            'message': 'team id is not exists.',
+        }
+        return response_object, 404
+
+    claim = ProposalClaim.query.filter_by(id=team.team_id).first()
+    if not claim:
+        response_object = {
+            'status': 'fail',
+            'message': 'claim doesn`t exists.',
+        }
+        return response_object, 404
+
+    # only creator and admin can delete
+    if user.id != claim.user_id:
+        response_object = {
+            'status': 'fail',
+            'message': 'no permission.',
+        }
+        return response_object, 403
+
+    try:
+        team.is_delete = 1
+        # 批量'删除'该条评论下关联的所有回复
+        db.session.query(ProposalClaimTeam).filter(
+            ProposalClaimTeam.parent_id == ProposalClaimTeam.id).update({ProposalClaimTeam.is_delete: 1})
+        db.session.commit()
+
+        response_object = {
+            'status': 'success',
+            'message': 'Successfully delete team.',
+        }
+        return response_object, 200
+
+    except Exception as e:
+        print(e)
+        response_object = {'status': 'fail', 'message': str(e)}
+        return response_object, 400

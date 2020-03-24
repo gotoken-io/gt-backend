@@ -81,6 +81,10 @@ def get_all_users():
     return User.query.all()
 
 
+def search_by_mail(content):
+    return User.query.filter(User.email.like("%"+content+"%")).all()
+
+
 def get_a_user_by_id(id):
     user = User.query.filter(User.id == id).first()
     # user created proposals

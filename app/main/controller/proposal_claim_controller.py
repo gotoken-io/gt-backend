@@ -4,11 +4,11 @@ from flask_restplus import Resource
 from app.main.util.decorator import admin_token_required, token_required
 from app.main.service.user_service import get_a_user_by_auth_token
 
-from app.main.util.dto.proposal_claim_dto import proposal_claim, api, page_of_proposal_claim
+from app.main.util.dto.proposal_claim_dto import proposal_claim, api, page_of_proposal_claim, proposal_claim_team
 import app.main.service.proposal_claim_service as proposal_claim_service
 
 api_proposal_claim = api
-
+add_team = proposal_claim_team
 
 # proposal zone api
 @api_proposal_claim.route('/')
@@ -129,3 +129,31 @@ class VerifyProposalClaimAPI(Resource):
         return proposal_claim_service.verify_claim(claim_id=claim_id,
                                                    user_id=user.id,
                                                    approve=approve)
+# proposal zone api
+@api_proposal_claim.route('/team')
+class ProposalClaimAPI(Resource):
+    """
+        Proposal Claim Resource
+    """
+    @api_proposal_claim.doc('Add a team member')
+    @api_proposal_claim.expect(add_team, validate=False)
+    @token_required
+    def post(self):
+        # get the post data
+        post_data = request.json
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+
+        if user:
+            return proposal_claim_service.add_team(data=post_data,
+                                                   owner_id=user.id)
+
+    @api.doc('delete team_member')
+    def delete(self):
+        id = request.json['id']
+        # get auth token
+        auth_token = request.headers.get('Authorization')
+        user = get_a_user_by_auth_token(auth_token)
+        if user:
+            return proposal_claim_service.delete_team(id, user)

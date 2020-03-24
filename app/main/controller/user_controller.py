@@ -191,3 +191,14 @@ class ResetPasswordAPI(Resource):
         """submit reset password request"""
         data = request.json
         return reset_password(data)
+
+
+@api.route('/search')
+class Search(Resource):
+    @api.doc('Auto complete email')
+    @api.marshal_list_with(user_get_all, envelope='data')
+    @token_required
+    def get(self):
+        """get a user emails"""
+        content = request.args.get("content")
+        return user_service.search_by_mail(content=content)

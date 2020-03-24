@@ -47,6 +47,7 @@ def create_proposal_log(proposal_id,
     save_changes(new_proposal_log)
 
 
+
 # get all proposal logs by proposal id
 def get_a_proposal_logs(proposal_id):
     return ProposalLog.query.filter_by(proposal_id=proposal_id).order_by(
@@ -58,12 +59,12 @@ def get_all_proposal_zone():
 
 
 def get_all_proposal(
-    page=1,
-    zone_id=None,
-    category_id=None,
-    status_key=None,  # proposal status key
-    sort_name="createtime",
-    sort_by="desc"):
+        page=1,
+        zone_id=None,
+        category_id=None,
+        status_key=None,  # proposal status key
+        sort_name="createtime",
+        sort_by="desc"):
 
     zone = None
     category = None
