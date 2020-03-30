@@ -40,4 +40,6 @@ proposal_zone = api.model(
         fields.String(description='Multi Signature contract address'),
         'voteAddress':
         fields.String(description='Vote contract address'),
+        'total_proposals':
+        fields.Integer(description='Total of proposals in the zone'),
     })

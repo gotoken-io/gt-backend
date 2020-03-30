@@ -81,6 +81,10 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
                               backref="zone",
                               lazy='dynamic')
 
+    @property
+    def total_proposals(self):
+        return Proposal.query.filter_by(zone_id=self.id).count()
+
     def __repr__(self):
         return "<Proposal Zone '{}'>".format(self.name)
 
