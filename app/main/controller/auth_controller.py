@@ -4,6 +4,7 @@ from flask_restplus import Resource
 from app.main.util.decorator import admin_token_required, token_required
 from app.main.service.auth_helper import Auth
 import app.main.util.dto.auth_dto as auth_dto
+from app.main.model import ProposalZone
 
 api = auth_dto.api
 user_auth = auth_dto.user_auth
@@ -39,8 +40,9 @@ class AddressLogin(Resource):
     def post(self):
         # get the post data
         post_data = request.json
+        zone = ProposalZone.query.filter_by(name='GT').first()
         zoneId = 2  # Only go token can use login
-        return Auth.login_address(data=post_data, zoneId=zoneId)
+        return Auth.login_address(data=post_data, zoneId=zone.id)
 
     @api.doc('Get Address nonce')
     def get(self):
