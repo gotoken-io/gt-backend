@@ -3,6 +3,8 @@ from app.main.model.mixin import BaseModelMixin, TimestampMixin
 from app.main.model.currency import Currency
 from app.main.model.user import User
 from app.main.model.proposal import ProposalZone
+from web3.auto import w3
+from eth_account.messages import encode_defunct
 
 
 class Wallet(BaseModelMixin, TimestampMixin, db.Model):
@@ -17,3 +19,25 @@ class Wallet(BaseModelMixin, TimestampMixin, db.Model):
                             db.ForeignKey('currency.id'),
                             primary_key=True)
     address = db.Column(db.String(255), nullable=True)  # wallet address
+    # Nonce code for security checks
+    nonce = db.Column(db.String(100), nullable=True)
+
+    @staticmethod
+    def recover_address(data: str, signature: str) -> str:
+        message = encode_defunct(text=data)
+        return w3.eth.account.recover_message(message, signature=signature)
+
+    @staticmethod
+    def checkNonce(wallet, signature):
+        """
+        Check the nonce validity
+        :param wallet:
+        :return: boolean
+        """
+
+        if wallet.nonce == None:
+            return False
+
+        result = Wallet.recover_address(wallet.nonce, signature)
+        print(wallet.nonce, wallet.address, result)
+        return result == wallet.address

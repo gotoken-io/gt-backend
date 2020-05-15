@@ -36,4 +36,10 @@ proposal_zone = api.model(
         fields.DateTime(description='created timestamp'),
         'updated':
         fields.DateTime(description='updated timestamp'),
+        'multiSigAddress':
+        fields.String(description='Multi Signature contract address'),
+        'voteAddress':
+        fields.String(description='Vote contract address'),
+        'total_proposals':
+        fields.Integer(description='Total of proposals in the zone'),
     })

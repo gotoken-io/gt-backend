@@ -1,6 +1,10 @@
 from app.main.model.user import User
 from ..service.blacklist_service import save_token
 from ..service.util.uuid import version_uuid
+from app.main.model.wallet import Wallet
+from app.main import db
+from secrets import token_hex
+
 
 class Auth:
 
@@ -8,7 +12,8 @@ class Auth:
     def login_user(data):
         try:
             # fetch the user data
-            user = User.query.filter((User.email==data.get('email').lower()) | (User.username==data.get('email'))).first()
+            user = User.query.filter((User.email == data.get('email').lower()) | (
+                User.username == data.get('email'))).first()
             if user and user.check_password(data.get('password')):
                 auth_token = User.encode_auth_token(user.public_id)
                 if auth_token:
@@ -24,6 +29,95 @@ class Auth:
                     'message': 'email or password does not match.'
                 }
                 return response_object, 401
+
+        except Exception as e:
+            print(e)
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again'
+            }
+            return response_object, 500
+
+    @staticmethod
+    def login_address(data, zoneId):
+        try:
+            # fetch the user data
+            wallet = Wallet.query.filter_by(
+                address=data.get('address'), zone_id=zoneId).first()
+            if not wallet:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Address not found'
+                }
+                return response_object, 404
+
+            user = User.query.filter_by(id=wallet.user_id).first()
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User not found'
+                }
+                return response_object, 404
+
+            checkNonce = Wallet.checkNonce(wallet, data.get("signature"))
+            # Invalidate the nonce
+            wallet.nonce = None
+            db.session.commit()
+            if checkNonce:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Wrong Signature'
+                }
+                return response_object, 401
+
+            auth_token = User.encode_auth_token(user.public_id)
+
+            response_object = {
+                'status': 'success',
+                'message': 'Successfully logged in.',
+                'Authorization': auth_token.decode()
+            }
+            return response_object, 200
+
+        except Exception as e:
+            print(e)
+            response_object = {
+                'status': 'fail',
+                'message': 'Try again'
+            }
+            return response_object, 500
+
+    @staticmethod
+    def get_nonce(address):
+        try:
+            # fetch the user data
+            wallet = Wallet.query.filter_by(
+                address=address).first()
+
+            if not wallet:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'Address not found'
+                }
+                return response_object, 404
+
+            user = User.query.filter_by(id=wallet.user_id).first()
+
+            if not user:
+                response_object = {
+                    'status': 'fail',
+                    'message': 'User not found'
+                }
+                return response_object, 404
+
+            wallet.nonce = str(token_hex(32))
+            db.session.commit()
+            response_object = {
+                'status': 'success',
+                'nonce':  wallet.nonce,
+                'userId': wallet.user_id
+            }
+            return response_object, 200
 
         except Exception as e:
             print(e)

@@ -5,6 +5,7 @@ from app.main.model.user import User
 from app.main.model.proposal import Proposal
 from app.main.util.proposal_claim import ProposalClaimStatus
 from app.main.util.common import uuid4
+from app.main.model.proposal_claim_team import ProposalClaimTeam
 
 
 class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
@@ -29,6 +30,7 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
 
     # 申领理由
     reason = db.Column(db.Text)
+    plan = db.Column(db.Text)
 
     budget_amount = db.Column(db.DECIMAL, nullable=True)
     budget_currency_id = db.Column(db.Integer,
@@ -41,10 +43,19 @@ class ProposalClaim(BaseModelMixin, TimestampMixin, db.Model):
     # 完成结果
     result = db.Column(db.Text, nullable=True)
 
+    # team = db.relationship('ProposalClaimTeam',
+    #                        foreign_keys='ProposalClaimTeam.team_id',
+    #                        backref='team',
+    #                        lazy='dynamic')
+
     @property
     def status_key(self):
         if self.status:
             return ProposalClaimStatus(self.status).name
+
+    @property
+    def team(self):
+        return ProposalClaimTeam.query.filter_by(team_id=self.id, is_delete=0)
 
     # @property
     # def creator(self):

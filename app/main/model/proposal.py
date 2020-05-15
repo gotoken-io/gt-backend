@@ -60,6 +60,10 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
 
     vote_addr_weight_json = db.Column(db.Text)
 
+    # 合约地址
+    multiSigAddress = db.Column(db.String(100))
+    voteAddress = db.Column(db.String(100))
+
     # 该专区下的提案
     proposals = db.relationship('Proposal',
                                 foreign_keys='Proposal.zone_id',
@@ -76,6 +80,10 @@ class ProposalZone(BaseModelMixin, TimestampMixin, db.Model):
                               foreign_keys='Wallet.zone_id',
                               backref="zone",
                               lazy='dynamic')
+
+    @property
+    def total_proposals(self):
+        return Proposal.query.filter_by(zone_id=self.id).count()
 
     def __repr__(self):
         return "<Proposal Zone '{}'>".format(self.name)

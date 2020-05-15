@@ -156,9 +156,9 @@ class ProposalSingleAPI(Resource):
         proposal = get_a_proposal(id)
         if not proposal:
             # print('404')
-            api_proposal.abort(404)
-        else:
-            return proposal
+            return api_proposal.abort(404)
+
+        return proposal
 
     @api_proposal.doc('update proposal')
     @api_proposal.expect(proposal_post)

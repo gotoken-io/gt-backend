@@ -26,6 +26,9 @@ user_wallet_get = api.model(
         'address':
         fields.String(required=True,
                       description='user proposal zone token address'),
+        'nonce':
+        fields.String(required=False,
+                      description='Nonce code for security checks'),
         # 'zone_id':
         # fields.Integer(),
         # 'currency_id':
