@@ -53,6 +53,8 @@ class ProductionConfig(Config):
     # uncomment the line below to use postgres
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+    SQLALCHEMY_POOL_SIZE = os.environ['POOL_SIZE']
+    SQLALCHEMY_POOL_RECYCLE = os.environ['POOL_RECYCLE']
     HOST = 'https://gotoken.io'
 
 
